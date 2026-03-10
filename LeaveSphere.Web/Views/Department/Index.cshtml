@@ -1,0 +1,484 @@
+@model IEnumerable<LeaveSphere.Web.Models.ViewModels.DepartmentViewModel>
+
+@{
+    ViewData["Title"] = "Departments";
+    ViewData["BodyClass"] = "admin-bg";
+    var departments = Model?.ToList() ?? new List<LeaveSphere.Web.Models.ViewModels.DepartmentViewModel>();
+    var iconMap = new Dictionary<string, string> {
+        { "hr", "fa-users" }, { "human", "fa-users" },
+        { "it", "fa-laptop-code" }, { "tech", "fa-microchip" },
+        { "finance", "fa-coins" }, { "account", "fa-calculator" },
+        { "market", "fa-bullhorn" }, { "sales", "fa-chart-line" },
+        { "oper", "fa-cogs" }, { "admin", "fa-user-shield" },
+        { "legal", "fa-gavel" }, { "support", "fa-headset" },
+        { "design", "fa-palette" }, { "research", "fa-flask" }
+    };
+    var gradients = new[] {
+        "#667eea", "#f5576c", "#4facfe", "#43e97b",
+        "#fa709a", "#a18cd1", "#fccb90", "#36d1dc"
+    };
+}
+
+<style>
+    /* ===== DEPARTMENT PAGE - HIGH CONTRAST DESIGN ===== */
+
+    .dept-page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 30px;
+        flex-wrap: wrap;
+        gap: 16px;
+    }
+
+    .dept-page-header .header-left h2 {
+        font-size: 2.2rem;
+        font-weight: 900;
+        color: #00d2ff;
+        margin: 0;
+        text-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
+    }
+
+    .dept-page-header .header-left h2 i {
+        color: #00d2ff;
+    }
+
+    .dept-page-header .header-left .sub {
+        font-size: 1.1rem;
+        color: #00b4d8;
+        margin-top: 4px;
+        font-weight: 600;
+    }
+
+    .dept-top-bar {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+    }
+
+    .dept-count-box {
+        background: #ffffff;
+        border-radius: 14px;
+        padding: 10px 22px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+    }
+
+    .dept-count-box .num {
+        font-size: 1.6rem;
+        font-weight: 800;
+        color: #007bff;
+    }
+
+    .dept-count-box .txt {
+        font-size: 0.78rem;
+        color: #555;
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
+        font-weight: 700;
+        line-height: 1.3;
+    }
+
+    .btn-dept-add {
+        background: linear-gradient(135deg, #007bff, #00b4d8);
+        border: none;
+        border-radius: 12px;
+        padding: 12px 26px;
+        color: #fff;
+        font-weight: 700;
+        font-size: 0.95rem;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.3s;
+        box-shadow: 0 4px 16px rgba(0,123,255,0.35);
+    }
+
+    .btn-dept-add:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(0,123,255,0.5);
+        color: #fff;
+    }
+
+    /* ===== CARD GRID ===== */
+    .dept-cards {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 22px;
+    }
+
+    .dept-card {
+        background: #ffffff;
+        border-radius: 18px;
+        padding: 0;
+        overflow: hidden;
+        box-shadow: 0 6px 24px rgba(0,0,0,0.12);
+        transition: all 0.35s ease;
+        animation: deptFadeIn 0.4s ease forwards;
+        opacity: 0;
+    }
+
+    .dept-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 14px 40px rgba(0,0,0,0.18);
+    }
+
+    .dept-card-top {
+        height: 6px;
+    }
+
+    .dept-card-content {
+        padding: 24px 24px 20px;
+    }
+
+    .dept-card-row {
+        display: flex;
+        align-items: center;
+        gap: 18px;
+    }
+
+    .dept-card-icon {
+        width: 56px;
+        height: 56px;
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.4rem;
+        color: #fff;
+        flex-shrink: 0;
+        box-shadow: 0 4px 14px rgba(0,0,0,0.15);
+    }
+
+    .dept-card-text h4 {
+        font-size: 1.25rem;
+        font-weight: 800;
+        color: #1a1a2e;
+        margin: 0 0 4px;
+    }
+
+    .dept-card-text span {
+        font-size: 0.82rem;
+        color: #888;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1.2px;
+    }
+
+    .dept-card-btns {
+        display: flex;
+        gap: 10px;
+        padding: 16px 24px;
+        border-top: 1px solid #f0f0f0;
+        background: #fafbfc;
+    }
+
+    .dept-card-btns a,
+    .dept-card-btns button {
+        flex: 1;
+        padding: 10px 14px;
+        border-radius: 10px;
+        font-size: 0.88rem;
+        font-weight: 700;
+        text-align: center;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        cursor: pointer;
+        transition: all 0.25s;
+        border: 2px solid transparent;
+    }
+
+    .dept-btn-edit {
+        background: #e8f4fd;
+        color: #0069d9 !important;
+        border-color: #b8daff !important;
+    }
+
+    .dept-btn-edit:hover {
+        background: #007bff;
+        color: #fff !important;
+        border-color: #007bff !important;
+        transform: translateY(-1px);
+    }
+
+    .dept-btn-del {
+        background: #fde8ea;
+        color: #c82333 !important;
+        border-color: #f5c6cb !important;
+    }
+
+    .dept-btn-del:hover {
+        background: #dc3545;
+        color: #fff !important;
+        border-color: #dc3545 !important;
+        transform: translateY(-1px);
+    }
+
+    /* Error alert */
+    .dept-error-bar {
+        background: #fff3cd;
+        border: 2px solid #ffc107;
+        color: #856404;
+        border-radius: 12px;
+        padding: 14px 20px;
+        margin-bottom: 22px;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    /* Empty state */
+    .dept-empty {
+        text-align: center;
+        padding: 60px 30px;
+        background: #ffffff;
+        border-radius: 20px;
+        box-shadow: 0 6px 24px rgba(0,0,0,0.1);
+    }
+
+    .dept-empty i {
+        font-size: 3.5rem;
+        color: #ccc;
+        margin-bottom: 16px;
+    }
+
+    .dept-empty h4 {
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: #333;
+        margin-bottom: 8px;
+    }
+
+    .dept-empty p {
+        color: #777;
+        font-size: 1rem;
+    }
+
+    /* Delete modal */
+    .del-overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0.6);
+        backdrop-filter: blur(4px);
+        z-index: 9999;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .del-overlay.active { display: flex; }
+
+    .del-box {
+        background: #ffffff;
+        border-radius: 20px;
+        padding: 36px;
+        text-align: center;
+        max-width: 400px;
+        width: 90%;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+        animation: deptFadeIn 0.25s ease;
+    }
+
+    .del-box .del-icon {
+        width: 64px;
+        height: 64px;
+        background: #fde8ea;
+        border-radius: 50%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 16px;
+    }
+
+    .del-box .del-icon i {
+        font-size: 1.6rem;
+        color: #dc3545;
+    }
+
+    .del-box h4 {
+        font-size: 1.2rem;
+        font-weight: 800;
+        color: #1a1a2e;
+        margin-bottom: 8px;
+    }
+
+    .del-box p {
+        color: #666;
+        font-size: 0.95rem;
+        margin-bottom: 24px;
+    }
+
+    .del-box p strong {
+        color: #333;
+    }
+
+    .del-box .del-btns {
+        display: flex;
+        gap: 12px;
+        justify-content: center;
+    }
+
+    .del-box .btn-cancel {
+        padding: 10px 28px;
+        border-radius: 10px;
+        background: #f0f0f0;
+        color: #333;
+        border: 2px solid #ddd;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.25s;
+    }
+
+    .del-box .btn-cancel:hover {
+        background: #e0e0e0;
+    }
+
+    .del-box .btn-confirm-del {
+        padding: 10px 28px;
+        border-radius: 10px;
+        background: #dc3545;
+        color: #fff;
+        border: none;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.25s;
+        box-shadow: 0 4px 12px rgba(220,53,69,0.3);
+    }
+
+    .del-box .btn-confirm-del:hover {
+        background: #c82333;
+        transform: translateY(-1px);
+    }
+
+    @@keyframes deptFadeIn {
+        from { opacity: 0; transform: translateY(16px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+</style>
+
+<!-- ===== HEADER ===== -->
+<div class="dept-page-header">
+    <div class="header-left">
+        <h2><i class="fas fa-building me-2"></i>Departments</h2>
+        <div class="sub">Manage your organization's departments</div>
+    </div>
+    <div class="dept-top-bar">
+        <div class="dept-count-box">
+            <span class="num">@departments.Count</span>
+            <span class="txt">Total<br/>Depts</span>
+        </div>
+        <a href="/Department/Create" class="btn-dept-add">
+            <i class="fas fa-plus"></i> Add Department
+        </a>
+    </div>
+</div>
+
+@if (TempData["Success"] != null)
+{
+    <div class="dept-error-bar" style="background: #d4edda; border-color: #c3e6cb; color: #155724;">
+        <i class="fas fa-check-circle"></i> @TempData["Success"]
+    </div>
+}
+
+@if (TempData["Error"] != null)
+{
+    <div class="dept-error-bar">
+        <i class="fas fa-exclamation-triangle"></i> @TempData["Error"]
+    </div>
+}
+
+@if (departments.Any())
+{
+    <div class="dept-cards">
+        @{ var idx = 0; }
+        @foreach (var item in departments)
+        {
+            var color = gradients[idx % gradients.Length];
+            var deptLower = item.DepartmentName.ToLower();
+            var icon = "fa-building";
+            foreach (var kv in iconMap)
+            {
+                if (deptLower.Contains(kv.Key)) { icon = kv.Value; break; }
+            }
+            <div class="dept-card" style="animation-delay: @(idx * 0.07)s;">
+                <div class="dept-card-top" style="background: @color;"></div>
+                <div class="dept-card-content">
+                    <div class="dept-card-row">
+                        <div class="dept-card-icon" style="background: @color;">
+                            <i class="fas @icon"></i>
+                        </div>
+                        <div class="dept-card-text">
+                            <h4>@item.DepartmentName</h4>
+                            <span>Department #@item.DepartmentId</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="dept-card-btns">
+                    <a href="/Department/Edit/@item.DepartmentId" class="dept-btn-edit">
+                        <i class="fas fa-pen"></i> Edit
+                    </a>
+                    <button type="button" class="dept-btn-del" onclick="openDel(@item.DepartmentId, '@item.DepartmentName.Replace("'", "\\'")') ">
+                        <i class="fas fa-trash-alt"></i> Delete
+                    </button>
+                </div>
+            </div>
+            idx++;
+        }
+    </div>
+}
+else
+{
+    <div class="dept-empty">
+        <i class="fas fa-building d-block"></i>
+        <h4>No Departments Found</h4>
+        <p>Get started by creating your first department.</p>
+        <a href="/Department/Create" class="btn-dept-add mt-3">
+            <i class="fas fa-plus"></i> Create Department
+        </a>
+    </div>
+}
+
+<!-- Delete Modal -->
+<div class="del-overlay" id="delModal">
+    <div class="del-box">
+        <div class="del-icon"><i class="fas fa-exclamation-triangle"></i></div>
+        <h4>Delete Department?</h4>
+        <p>Are you sure you want to delete <strong id="delName"></strong>?<br/>This action cannot be undone.</p>
+        <div class="del-btns">
+            <button class="btn-cancel" onclick="closeDel()">Cancel</button>
+            <form id="deleteDeptForm" action="/Department/Delete" method="post" class="d-inline">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="id" id="delDeptId" />
+                <button type="submit" class="btn-confirm-del">
+                    <i class="fas fa-trash-alt me-1"></i> Delete
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.querySelectorAll('.dept-card').forEach((c, i) => {
+            c.style.animationDelay = `${i * 0.07}s`;
+        });
+        function openDel(id, name) {
+            document.getElementById('delName').textContent = name;
+            document.getElementById('delDeptId').value = id;
+            document.getElementById('delModal').classList.add('active');
+        }
+        function closeDel() {
+            document.getElementById('delModal').classList.remove('active');
+        }
+        document.getElementById('delModal').addEventListener('click', function(e) {
+            if (e.target === this) closeDel();
+        });
+    </script>
+}

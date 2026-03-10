@@ -1,0 +1,58 @@
+@model LeaveSphere.Web.Models.ViewModels.DashboardViewModel
+@{
+    Layout = "_Layout";
+    ViewData["BodyClass"] = "admin-bg";
+}
+
+<h2 class="mb-4">Admin Dashboard</h2>
+<div class="row g-4 mt-2">
+    <div class="col-md-3">
+        <a href="/Employee" style="text-decoration: none;">
+            <div class="glass-item text-center">
+                <i class="fas fa-users-cog fa-2x mb-3 text-info"></i>
+                <h5>Total Employees</h5>
+                <h2 class="display-6 fw-bold">@Model.TotalEmployees</h2>
+            </div>
+        </a>
+    </div>
+
+    <div class="col-md-3">
+        <a href="/Leave/Approve?status=Pending" style="text-decoration: none;">
+            <div class="glass-item text-center">
+                <i class="fas fa-hourglass-half fa-2x mb-3 text-warning"></i>
+                <h5>Pending Leaves</h5>
+                <h2 class="display-6 fw-bold text-warning">@Model.Pending</h2>
+            </div>
+        </a>
+    </div>
+
+    <div class="col-md-3">
+        <a href="/Leave/Approve?status=Approved" style="text-decoration: none;">
+            <div class="glass-item text-center">
+                <i class="fas fa-check-circle fa-2x mb-3 text-success"></i>
+                <h5>Approved Leaves</h5>
+                <h2 class="display-6 fw-bold text-success">@Model.Approved</h2>
+            </div>
+        </a>
+    </div>
+
+    <div class="col-md-3">
+        <a href="/Leave/Approve?status=Rejected" style="text-decoration: none;">
+            <div class="glass-item text-center">
+                <i class="fas fa-times-circle fa-2x mb-3 text-danger"></i>
+                <h5>Rejected Leaves</h5>
+                <h2 class="display-6 fw-bold text-danger">@Model.Rejected</h2>
+            </div>
+        </a>
+    </div>
+
+    <div class="col-md-3">
+        <a href="/Leave/Report" style="text-decoration: none;">
+            <div class="glass-item text-center">
+                <i class="fas fa-chart-pie fa-2x mb-3 text-info"></i>
+                <h5>Leave Report</h5>
+                <h2 class="display-6 fw-bold text-info"><i class="fas fa-arrow-right"></i></h2>
+            </div>
+        </a>
+    </div>
+</div>

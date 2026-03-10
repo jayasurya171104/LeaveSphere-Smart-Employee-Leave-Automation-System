@@ -1,0 +1,212 @@
+@model LeaveSphere.Web.Models.ViewModels.DepartmentViewModel
+
+@{
+    ViewData["Title"] = "Edit Department";
+    ViewData["BodyClass"] = "admin-bg";
+}
+
+<style>
+    .dept-form-wrap {
+        max-width: 520px;
+        margin: 20px auto;
+    }
+
+    .dept-form-box {
+        background: #ffffff;
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+    }
+
+    .dept-form-accent {
+        height: 6px;
+        background: linear-gradient(135deg, #f093fb, #f5576c);
+    }
+
+    .dept-form-inner {
+        padding: 36px 32px;
+    }
+
+    .dept-form-title {
+        text-align: center;
+        margin-bottom: 28px;
+    }
+
+    .dept-form-title .icon-circle {
+        width: 64px;
+        height: 64px;
+        background: linear-gradient(135deg, #f093fb, #f5576c);
+        border-radius: 18px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        color: #fff;
+        margin-bottom: 14px;
+        box-shadow: 0 6px 20px rgba(245,87,108,0.3);
+    }
+
+    .dept-form-title h3 {
+        font-size: 1.6rem;
+        font-weight: 900;
+        color: #f5576c;
+        margin: 0 0 6px;
+    }
+
+    .dept-form-title p {
+        color: #f093fb;
+        font-size: 1rem;
+        font-weight: 600;
+        margin: 0;
+    }
+
+    .dept-id-tag {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: #f0f0f5;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        padding: 6px 14px;
+        font-size: 0.82rem;
+        color: #666;
+        letter-spacing: 0.5px;
+        font-weight: 700;
+        margin-top: 10px;
+    }
+
+    .dept-label {
+        display: block;
+        font-size: 0.88rem;
+        font-weight: 700;
+        color: #333;
+        margin-bottom: 8px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .dept-input {
+        width: 100%;
+        padding: 14px 18px;
+        border: 2px solid #e0e0e0;
+        border-radius: 12px;
+        font-size: 1rem;
+        color: #222 !important;
+        background: #fff !important;
+        outline: none;
+        transition: all 0.3s;
+    }
+
+    .dept-input::placeholder {
+        color: #aaa;
+    }
+
+    .dept-input:focus {
+        border-color: #f093fb;
+        box-shadow: 0 0 0 3px rgba(240,147,251,0.15);
+    }
+
+    .dept-submit-btn {
+        width: 100%;
+        padding: 14px;
+        background: linear-gradient(135deg, #f093fb, #f5576c);
+        border: none;
+        border-radius: 12px;
+        color: #fff;
+        font-weight: 800;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: all 0.3s;
+        box-shadow: 0 4px 16px rgba(245,87,108,0.3);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+    }
+
+    .dept-submit-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(245,87,108,0.45);
+    }
+
+    .dept-back {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        color: #888;
+        text-decoration: none;
+        font-size: 0.9rem;
+        font-weight: 600;
+        margin-top: 18px;
+        transition: all 0.25s;
+    }
+
+    .dept-back:hover {
+        color: #f093fb;
+    }
+
+    .dept-form-error {
+        background: #fde8ea;
+        border: 2px solid #f5c6cb;
+        color: #c82333;
+        border-radius: 10px;
+        padding: 12px 16px;
+        margin-bottom: 18px;
+        font-weight: 600;
+        font-size: 0.9rem;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+</style>
+
+<div class="dept-form-wrap">
+    <div class="dept-form-box">
+        <div class="dept-form-accent"></div>
+        <div class="dept-form-inner">
+            <div class="dept-form-title">
+                <div class="icon-circle"><i class="fas fa-pen"></i></div>
+                <h3>Edit Department</h3>
+                <p>Update department information</p>
+                <div class="dept-id-tag">
+                    <i class="fas fa-hashtag"></i> Department ID: @Model.DepartmentId
+                </div>
+            </div>
+
+            @if (ViewBag.Message != null)
+            {
+                <div class="dept-form-error">
+                    <i class="fas fa-exclamation-circle"></i> @ViewBag.Message
+                </div>
+            }
+
+            <form action="/Department/Edit/@Model.DepartmentId" method="post">
+                <input type="hidden" asp-for="DepartmentId" />
+
+                <div class="mb-4">
+                    <label asp-for="DepartmentName" class="dept-label">
+                        <i class="fas fa-building me-1"></i> Department Name
+                    </label>
+                    <input asp-for="DepartmentName" class="dept-input" />
+                    <span asp-validation-for="DepartmentName" class="text-danger small mt-1 d-block" style="font-weight:600;"></span>
+                </div>
+
+                <div class="mt-4">
+                    <button type="submit" class="dept-submit-btn">
+                        <i class="fas fa-save"></i> Update Department
+                    </button>
+                </div>
+
+                <div class="text-center">
+                    <a href="/Department" class="dept-back">
+                        <i class="fas fa-arrow-left"></i> Back to Departments
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
