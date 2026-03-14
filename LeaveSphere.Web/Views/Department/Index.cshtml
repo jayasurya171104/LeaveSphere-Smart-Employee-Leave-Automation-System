@@ -2,7 +2,7 @@
 
 @{
     ViewData["Title"] = "Departments";
-    ViewData["BodyClass"] = "admin-bg";
+    ViewData["BodyClass"] = "admin-inner-bg";
     var departments = Model?.ToList() ?? new List<LeaveSphere.Web.Models.ViewModels.DepartmentViewModel>();
     var iconMap = new Dictionary<string, string> {
         { "hr", "fa-users" }, { "human", "fa-users" },
@@ -20,345 +20,333 @@
 }
 
 <style>
-    /* ===== DEPARTMENT PAGE - HIGH CONTRAST DESIGN ===== */
+    
+    html {
+        background-color: #0f172a !important;
+    }
 
+    body.admin-inner-bg {
+        background: radial-gradient(circle at 10% 20%, rgba(0, 210, 255, 0.12) 0%, transparent 40%),
+                    radial-gradient(circle at 90% 80%, rgba(58, 123, 213, 0.12) 0%, transparent 40%),
+                    linear-gradient(rgba(15, 23, 42, 0.65), rgba(15, 23, 42, 0.65)),
+                    url('/images/admin-inner-bg.png') no-repeat center center fixed !important;
+        background-size: cover !important;
+        color: #fff !important;
+        min-height: 100vh;
+        margin: 0;
+    }
+
+    /* Page Header Styling */
     .dept-page-header {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-bottom: 30px;
+        margin-bottom: 35px;
+        padding: 25px;
+        background: rgba(255, 255, 255, 0.03);
+        backdrop-filter: blur(10px);
+        border-radius: 20px;
+        border: 1px solid rgba(255, 255, 255, 0.05);
         flex-wrap: wrap;
-        gap: 16px;
+        gap: 20px;
     }
 
     .dept-page-header .header-left h2 {
         font-size: 2.2rem;
         font-weight: 900;
-        color: #00d2ff;
+        background: linear-gradient(135deg, #00d2ff 0%, #3a7bd5 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
         margin: 0;
-        text-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
-    }
-
-    .dept-page-header .header-left h2 i {
-        color: #00d2ff;
+        filter: drop-shadow(0 0 10px rgba(0, 210, 255, 0.3));
     }
 
     .dept-page-header .header-left .sub {
-        font-size: 1.1rem;
-        color: #00b4d8;
+        color: rgba(255, 255, 255, 0.6);
+        font-weight: 500;
         margin-top: 4px;
-        font-weight: 600;
+        font-size: 1.1rem;
     }
 
     .dept-top-bar {
         display: flex;
         align-items: center;
-        gap: 14px;
+        gap: 15px;
     }
 
     .dept-count-box {
-        background: #ffffff;
-        border-radius: 14px;
-        padding: 10px 22px;
+        background: rgba(255, 255, 255, 0.08);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 16px;
+        padding: 10px 24px;
         display: flex;
         align-items: center;
-        gap: 10px;
-        box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+        gap: 12px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
     }
 
-    .dept-count-box .num {
-        font-size: 1.6rem;
+    .dept-count-box .num { 
+        font-size: 1.8rem;
         font-weight: 800;
-        color: #007bff;
+        color: #00d2ff; 
     }
-
-    .dept-count-box .txt {
-        font-size: 0.78rem;
-        color: #555;
+    
+    .dept-count-box .txt { 
+        font-size: 0.8rem;
+        color: rgba(255, 255, 255, 0.7);
         text-transform: uppercase;
-        letter-spacing: 0.8px;
+        letter-spacing: 1px;
         font-weight: 700;
-        line-height: 1.3;
     }
 
     .btn-dept-add {
         background: linear-gradient(135deg, #007bff, #00b4d8);
         border: none;
-        border-radius: 12px;
-        padding: 12px 26px;
+        border-radius: 14px;
+        padding: 14px 28px;
         color: #fff;
         font-weight: 700;
-        font-size: 0.95rem;
         text-decoration: none;
         display: inline-flex;
         align-items: center;
-        gap: 8px;
-        transition: all 0.3s;
-        box-shadow: 0 4px 16px rgba(0,123,255,0.35);
+        gap: 10px;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 6px 20px rgba(0, 123, 255, 0.4);
     }
 
     .btn-dept-add:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 8px 24px rgba(0,123,255,0.5);
+        transform: translateY(-3px) scale(1.02);
+        box-shadow: 0 10px 25px rgba(0, 123, 255, 0.6);
         color: #fff;
     }
 
-    /* ===== CARD GRID ===== */
+    /* Glassmorphism Cards */
     .dept-cards {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-        gap: 22px;
+        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+        gap: 25px;
     }
 
     .dept-card {
-        background: #ffffff;
-        border-radius: 18px;
+        background: rgba(30, 41, 59, 0.45) !important;
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        border-radius: 24px;
         padding: 0;
         overflow: hidden;
-        box-shadow: 0 6px 24px rgba(0,0,0,0.12);
-        transition: all 0.35s ease;
-        animation: deptFadeIn 0.4s ease forwards;
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
+        transition: all 0.4s ease;
+        animation: deptFadeIn 0.5s ease forwards;
         opacity: 0;
     }
 
     .dept-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 14px 40px rgba(0,0,0,0.18);
+        transform: translateY(-10px) scale(1.02);
+        background: rgba(30, 41, 59, 0.6) !important;
+        border-color: rgba(0, 210, 255, 0.4) !important;
+        box-shadow: 0 20px 50px rgba(0, 210, 255, 0.2) !important;
     }
 
-    .dept-card-top {
-        height: 6px;
-    }
+    .dept-card-top { height: 6px; }
 
-    .dept-card-content {
-        padding: 24px 24px 20px;
-    }
+    .dept-card-content { padding: 30px; }
 
     .dept-card-row {
         display: flex;
         align-items: center;
-        gap: 18px;
+        gap: 20px;
     }
 
     .dept-card-icon {
-        width: 56px;
-        height: 56px;
-        border-radius: 14px;
+        width: 60px;
+        height: 60px;
+        border-radius: 16px;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 1.4rem;
+        font-size: 1.6rem;
         color: #fff;
         flex-shrink: 0;
-        box-shadow: 0 4px 14px rgba(0,0,0,0.15);
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
     }
 
     .dept-card-text h4 {
-        font-size: 1.25rem;
+        font-size: 1.4rem;
         font-weight: 800;
-        color: #1a1a2e;
-        margin: 0 0 4px;
+        color: #fff !important;
+        margin: 0 0 5px;
     }
 
     .dept-card-text span {
-        font-size: 0.82rem;
-        color: #888;
+        font-size: 0.85rem;
+        color: rgba(255, 255, 255, 0.5) !important;
         font-weight: 600;
         text-transform: uppercase;
-        letter-spacing: 1.2px;
+        letter-spacing: 1.5px;
     }
 
     .dept-card-btns {
         display: flex;
-        gap: 10px;
-        padding: 16px 24px;
-        border-top: 1px solid #f0f0f0;
-        background: #fafbfc;
+        gap: 12px;
+        padding: 20px 30px;
+        background: rgba(15, 23, 42, 0.5) !important;
+        border-top: 1px solid rgba(255, 255, 255, 0.05) !important;
     }
 
     .dept-card-btns a,
     .dept-card-btns button {
         flex: 1;
-        padding: 10px 14px;
-        border-radius: 10px;
-        font-size: 0.88rem;
+        padding: 12px;
+        border-radius: 12px;
+        font-size: 0.9rem;
         font-weight: 700;
-        text-align: center;
-        text-decoration: none;
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        gap: 6px;
-        cursor: pointer;
-        transition: all 0.25s;
-        border: 2px solid transparent;
+        gap: 8px;
+        transition: all 0.3s;
+        border: none;
     }
 
     .dept-btn-edit {
-        background: #e8f4fd;
-        color: #0069d9 !important;
-        border-color: #b8daff !important;
+        background: rgba(0, 123, 255, 0.15);
+        color: #00d2ff !important;
+        border: 1px solid rgba(0, 210, 255, 0.2) !important;
     }
 
     .dept-btn-edit:hover {
         background: #007bff;
         color: #fff !important;
-        border-color: #007bff !important;
-        transform: translateY(-1px);
+        transform: translateY(-2px);
     }
 
     .dept-btn-del {
-        background: #fde8ea;
-        color: #c82333 !important;
-        border-color: #f5c6cb !important;
+        background: rgba(220, 53, 69, 0.15);
+        color: #ff6b6b !important;
+        border: 1px solid rgba(255, 107, 107, 0.2) !important;
     }
 
     .dept-btn-del:hover {
         background: #dc3545;
         color: #fff !important;
-        border-color: #dc3545 !important;
-        transform: translateY(-1px);
+        transform: translateY(-2px);
     }
 
     /* Error alert */
     .dept-error-bar {
-        background: #fff3cd;
-        border: 2px solid #ffc107;
-        color: #856404;
+        background: rgba(220, 53, 69, 0.2);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(220, 53, 69, 0.4);
+        color: #ff8c8c;
         border-radius: 12px;
-        padding: 14px 20px;
-        margin-bottom: 22px;
+        padding: 15px 25px;
+        margin-bottom: 25px;
         font-weight: 600;
         display: flex;
         align-items: center;
-        gap: 10px;
+        gap: 12px;
+        box-shadow: 0 5px 15px rgba(220, 53, 69, 0.2);
+    }
+
+    .dept-success-bar {
+        background: rgba(40, 167, 69, 0.2);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(40, 167, 69, 0.4);
+        color: #8ed69d;
+        border-radius: 12px;
+        padding: 15px 25px;
+        margin-bottom: 25px;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        box-shadow: 0 5px 15px rgba(40, 167, 69, 0.2);
     }
 
     /* Empty state */
     .dept-empty {
         text-align: center;
-        padding: 60px 30px;
-        background: #ffffff;
-        border-radius: 20px;
-        box-shadow: 0 6px 24px rgba(0,0,0,0.1);
+        padding: 80px 40px;
+        background: rgba(255, 255, 255, 0.03);
+        backdrop-filter: blur(10px);
+        border-radius: 30px;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
     }
 
-    .dept-empty i {
-        font-size: 3.5rem;
-        color: #ccc;
-        margin-bottom: 16px;
-    }
+    .dept-empty i { font-size: 4rem; color: rgba(255, 255, 255, 0.15); margin-bottom: 20px; }
+    .dept-empty h4 { font-size: 1.5rem; color: #fff; font-weight: 700; }
+    .dept-empty p { color: rgba(255, 255, 255, 0.5); font-size: 1.1rem; }
 
-    .dept-empty h4 {
-        font-size: 1.3rem;
-        font-weight: 700;
-        color: #333;
-        margin-bottom: 8px;
-    }
-
-    .dept-empty p {
-        color: #777;
-        font-size: 1rem;
-    }
-
-    /* Delete modal */
+    /* Delete modal enhancement */
     .del-overlay {
         display: none;
         position: fixed;
         inset: 0;
-        background: rgba(0,0,0,0.6);
-        backdrop-filter: blur(4px);
+        background: rgba(0,0,0,0.7);
+        backdrop-filter: blur(10px);
         z-index: 9999;
         justify-content: center;
         align-items: center;
     }
-
     .del-overlay.active { display: flex; }
 
     .del-box {
-        background: #ffffff;
+        background: rgba(15, 23, 42, 0.85);
+        backdrop-filter: blur(25px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        color: white;
         border-radius: 20px;
         padding: 36px;
         text-align: center;
         max-width: 400px;
         width: 90%;
-        box-shadow: 0 20px 60px rgba(0,0,0,0.25);
-        animation: deptFadeIn 0.25s ease;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.5);
     }
-
-    .del-box .del-icon {
-        width: 64px;
-        height: 64px;
-        background: #fde8ea;
-        border-radius: 50%;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        margin-bottom: 16px;
-    }
-
-    .del-box .del-icon i {
-        font-size: 1.6rem;
-        color: #dc3545;
-    }
-
-    .del-box h4 {
-        font-size: 1.2rem;
-        font-weight: 800;
-        color: #1a1a2e;
-        margin-bottom: 8px;
-    }
-
-    .del-box p {
-        color: #666;
-        font-size: 0.95rem;
-        margin-bottom: 24px;
-    }
-
-    .del-box p strong {
-        color: #333;
-    }
-
-    .del-box .del-btns {
-        display: flex;
-        gap: 12px;
-        justify-content: center;
-    }
-
-    .del-box .btn-cancel {
-        padding: 10px 28px;
-        border-radius: 10px;
-        background: #f0f0f0;
-        color: #333;
-        border: 2px solid #ddd;
+    .del-box h4 { color: #fff; font-size: 1.4rem; margin-bottom: 10px; font-weight: 800; }
+    .del-box p { color: rgba(255, 255, 255, 0.7); margin-bottom: 25px; }
+    .del-box p strong { color: #fff; }
+    .del-box .btn-cancel { 
+        padding: 12px 25px;
+        border-radius: 12px;
+        background: rgba(255, 255, 255, 0.1); 
+        color: #fff; 
+        border: none; 
         font-weight: 700;
-        cursor: pointer;
-        transition: all 0.25s;
+        transition: 0.3s;
     }
-
-    .del-box .btn-cancel:hover {
-        background: #e0e0e0;
-    }
+    .del-box .btn-cancel:hover { background: rgba(255, 255, 255, 0.2); }
 
     .del-box .btn-confirm-del {
-        padding: 10px 28px;
-        border-radius: 10px;
+        padding: 12px 25px;
+        border-radius: 12px;
         background: #dc3545;
         color: #fff;
         border: none;
         font-weight: 700;
-        cursor: pointer;
-        transition: all 0.25s;
-        box-shadow: 0 4px 12px rgba(220,53,69,0.3);
+        transition: 0.3s;
+        box-shadow: 0 5px 15px rgba(220, 53, 69, 0.4);
     }
+    .del-box .btn-confirm-del:hover { background: #c82333; transform: translateY(-2px); }
 
-    .del-box .btn-confirm-del:hover {
-        background: #c82333;
-        transform: translateY(-1px);
+    .del-icon {
+        width: 60px;
+        height: 60px;
+        background: rgba(220, 53, 69, 0.1);
+        color: #dc3545;
+        border-radius: 50%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        margin-bottom: 15px;
     }
 
     @@keyframes deptFadeIn {
-        from { opacity: 0; transform: translateY(16px); }
+        from { opacity: 0; transform: translateY(20px); }
         to { opacity: 1; transform: translateY(0); }
     }
 </style>
@@ -382,7 +370,7 @@
 
 @if (TempData["Success"] != null)
 {
-    <div class="dept-error-bar" style="background: #d4edda; border-color: #c3e6cb; color: #155724;">
+    <div class="dept-success-bar">
         <i class="fas fa-check-circle"></i> @TempData["Success"]
     </div>
 }
@@ -453,10 +441,9 @@ else
         <p>Are you sure you want to delete <strong id="delName"></strong>?<br/>This action cannot be undone.</p>
         <div class="del-btns">
             <button class="btn-cancel" onclick="closeDel()">Cancel</button>
-            <form id="deleteDeptForm" action="/Department/Delete" method="post" class="d-inline">
+            <form id="deleteDeptForm" method="post" class="d-inline" onsubmit="return confirmSubmit()">
                 @Html.AntiForgeryToken()
-                <input type="hidden" name="id" id="delDeptId" />
-                <button type="submit" class="btn-confirm-del">
+                <button type="submit" class="btn-confirm-del" id="confirmDelBtn">
                     <i class="fas fa-trash-alt me-1"></i> Delete
                 </button>
             </form>
@@ -466,12 +453,20 @@ else
 
 @section Scripts {
     <script>
+        // Handle Back Button Redirection to Dashboard
+        (function () {
+            window.history.pushState(null, null, window.location.href);
+            window.onpopstate = function () {
+                window.location.href = '/Dashboard';
+            };
+        })();
+
         document.querySelectorAll('.dept-card').forEach((c, i) => {
             c.style.animationDelay = `${i * 0.07}s`;
         });
         function openDel(id, name) {
             document.getElementById('delName').textContent = name;
-            document.getElementById('delDeptId').value = id;
+            document.getElementById('deleteDeptForm').action = '/Department/Delete/' + id;
             document.getElementById('delModal').classList.add('active');
         }
         function closeDel() {
@@ -480,5 +475,14 @@ else
         document.getElementById('delModal').addEventListener('click', function(e) {
             if (e.target === this) closeDel();
         });
+
+        function confirmSubmit() {
+            const btn = document.getElementById('confirmDelBtn');
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> Deleting...';
+            // Use setTimeout to disable the button AFTER the form starts submitting
+            // to avoid canceling the submit event in some browsers.
+            setTimeout(() => { btn.disabled = true; }, 10);
+            return true;
+        }
     </script>
 }

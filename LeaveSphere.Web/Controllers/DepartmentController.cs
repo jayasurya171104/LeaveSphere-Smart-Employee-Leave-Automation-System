@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 
 namespace LeaveSphere.Web.Controllers
 {
@@ -105,23 +106,45 @@ namespace LeaveSphere.Web.Controllers
         }
 
         [HttpPost]
-        [Route("Delete")]
+        [Route("Delete/{id}")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Delete([FromForm] int id)
+        public async Task<IActionResult> Delete(int id)
         {
             var token = HttpContext.Session.GetString("JWToken");
             if (token == null) return RedirectToAction("Login", "Account");
 
-            var result = await _api.DeleteAsync($"Department/{id}", token);
+            try 
+            {
+                var result = await _api.DeleteAsync($"Department/{id}", token);
 
-            if (result.Contains("Error"))
-            {
-                var cleanError = result.Replace("Error: ", "").Replace("BadRequest -", "").Trim();
-                TempData["Error"] = "Could not delete department: " + cleanError;
+                if (result.Contains("Error"))
+                {
+                    var errorMessage = "An unexpected error occurred.";
+                    var jsonStart = result.IndexOf("{");
+                    if (jsonStart != -1)
+                    {
+                        try {
+                            var jsonStr = result.Substring(jsonStart);
+                            var errorObj = JsonConvert.DeserializeObject<dynamic>(jsonStr);
+                            errorMessage = errorObj?.message?.ToString() ?? errorObj?.Message?.ToString() ?? errorMessage;
+                        } catch { }
+                    }
+                    else
+                    {
+                        var parts = result.Split('-', 2);
+                        errorMessage = parts.Length > 1 ? parts[1].Trim() : result.Replace("Error:", "").Trim();
+                    }
+
+                    TempData["Error"] = errorMessage;
+                }
+                else
+                {
+                    TempData["Success"] = "Department deleted successfully!";
+                }
             }
-            else
+            catch (Exception ex)
             {
-                TempData["Success"] = "Department deleted successfully!";
+                TempData["Error"] = $"Critical Error: {ex.Message}";
             }
 
             return RedirectToAction("Index");

@@ -67,16 +67,17 @@ namespace LeaveSphere.API.Controllers
         {
             try
             {
-                var dept = _context.Departments.Find(id);
+                var dept = _context.Departments.Include(d => d.Employees).FirstOrDefault(d => d.DepartmentId == id);
                 if (dept == null) return NotFound("Department not found");
+
+                if (dept.Employees != null && dept.Employees.Any())
+                {
+                    return BadRequest("Cannot delete department because it contains employees. Please reassignment them first.");
+                }
 
                 _context.Departments.Remove(dept);
                 _context.SaveChanges();
                 return Ok(new { message = "Department Deleted Successfully" });
-            }
-            catch (DbUpdateException)
-            {
-                return BadRequest("Cannot delete department because it contains employees or other dependencies.");
             }
             catch (Exception ex)
             {

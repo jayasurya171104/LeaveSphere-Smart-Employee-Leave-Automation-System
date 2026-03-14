@@ -52,9 +52,9 @@
                         <td><span class="fw-medium">@leave.StartDate.ToString("dd MMM yyyy")</span></td>
                         <td><span class="fw-medium">@leave.EndDate.ToString("dd MMM yyyy")</span></td>
                         <td>
-                            <div class="text-truncate" style="max-width: 250px;" title="@leave.LeaveType - @leave.Reason">
+                            <div style="max-width: 400px; white-space: normal; word-wrap: break-word; line-height: 1.5;" title="@leave.LeaveType - @leave.Reason">
                                 <span class="badge bg-dark border border-secondary text-light me-1">@leave.LeaveType</span>
-                                <span style="opacity: 0.85; font-size: 0.9rem;">@leave.Reason</span>
+                                <span style="opacity: 0.85; font-size: 0.95rem;">@leave.Reason</span>
                             </div>
                         </td>
                         <td class="text-center mt-1">

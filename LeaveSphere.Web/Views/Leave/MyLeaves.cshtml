@@ -22,25 +22,29 @@
     var balance = profile?.LeaveBalance;
 }
 
-@if (balance != null)
+@if (profile != null)
 {
+    var total = profile.LeaveBalance?.TotalLeaves ?? 20;
+    var used = profile.LeaveBalance?.UsedLeaves ?? 0;
+    var remaining = profile.LeaveBalance?.RemainingLeaves ?? 20;
+
     <div class="row mb-4">
         <div class="col-md-4">
             <div class="glass-item p-4 text-center">
                 <div class="text-muted mb-1"><i class="fas fa-calendar-check me-2"></i> Total Entitlement</div>
-                <h2 class="margin-0 text-primary">@balance.TotalLeaves</h2>
+                <h2 class="margin-0 text-primary">@total</h2>
             </div>
         </div>
         <div class="col-md-4">
             <div class="glass-item p-4 text-center">
                 <div class="text-muted mb-1"><i class="fas fa-calendar-minus me-2"></i> Leaves Used</div>
-                <h2 class="margin-0 text-danger">@balance.UsedLeaves</h2>
+                <h2 class="margin-0 text-danger">@used</h2>
             </div>
         </div>
         <div class="col-md-4">
             <div class="glass-item p-4 text-center">
                 <div class="text-muted mb-1"><i class="fas fa-hourglass-half me-2"></i> Remaining</div>
-                <h2 class="margin-0 text-success">@balance.RemainingLeaves</h2>
+                <h2 class="margin-0 text-success">@remaining</h2>
             </div>
         </div>
     </div>
@@ -69,7 +73,7 @@
                 <tr>
                     <td>@leave.StartDate.ToShortDateString()</td>
                     <td>@leave.EndDate.ToShortDateString()</td>
-                    <td>@leave.Reason</td>
+                    <td style="max-width: 350px; white-space: normal; word-wrap: break-word; line-height: 1.4;">@leave.Reason</td>
                     <td>
                         @{
                             var badgeClass = leave.Status == "Approved" ? "bg-success" : 

@@ -41,6 +41,17 @@ namespace LeaveSphere.API.Controllers
             _context.Employees.Add(model);
             _context.SaveChanges();
 
+            // 🔥 Initialize LeaveBalance for new employee
+            var leaveBalance = new LeaveBalance
+            {
+                EmployeeId = model.EmployeeId,
+                TotalLeaves = 20,
+                UsedLeaves = 0,
+                RemainingLeaves = 20
+            };
+            _context.LeaveBalances.Add(leaveBalance);
+            _context.SaveChanges();
+
             return Ok("Employee Registered Successfully");
         }
 

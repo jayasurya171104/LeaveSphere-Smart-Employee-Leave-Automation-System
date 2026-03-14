@@ -1,28 +1,17 @@
-/* =========================
-   GLOBAL STYLE
-   ========================= */
+
 
 body {
     margin: 0;
     font-family: 'Segoe UI', sans-serif;
     min-height: 100vh;
     color: white;
-    /* Default to white for dark backgrounds */
-    /* Restored white text as default for dark background images */
+    
 }
 
-/* Specific color for light corporate theme */
+
 .corporate-bg {
     color: #333 !important;
 }
-
-/* =========================
-   BACKGROUND IMAGES
-   ========================= */
-
-/* =========================
-   HEADER & PROFILE DROPDOWN
-   ========================= */
 
 .header-section {
     position: relative;
@@ -173,10 +162,6 @@ body {
     min-height: 100vh;
 }
 
-/* =========================
-   APP CONTENT LAYOUT
-   ========================= */
-
 .app-wrapper {
     max-width: 1200px;
     margin: 0 auto;
@@ -188,9 +173,6 @@ body {
     width: 100%;
 }
 
-/* =========================
-   PREMIUM GLASS UTILITIES
-   ========================= */
 
 .glass-item {
     background: rgba(255, 255, 255, 0.05);
