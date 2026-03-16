@@ -3,7 +3,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using LeaveSphere.API.Data;
 using LeaveSphere.API.Models;
+using System;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace LeaveSphere.API.Controllers
 {
@@ -102,14 +104,43 @@ namespace LeaveSphere.API.Controllers
         }
 
         [HttpDelete("{id}")]
-        public IActionResult DeleteTeamLeader(int id)
+        public async Task<IActionResult> DeleteTeamLeader(int id)
         {
-            var leader = _context.TeamLeaders.Find(id);
-            if (leader == null) return NotFound();
+            using var transaction = await _context.Database.BeginTransactionAsync();
+            try
+            {
+                var leader = await _context.TeamLeaders
+                    .Include(t => t.LeaveRequests)
+                    .Include(t => t.LeaveBalance)
+                    .FirstOrDefaultAsync(t => t.TeamLeaderId == id);
 
-            _context.TeamLeaders.Remove(leader);
-            _context.SaveChanges();
-            return Ok("Team Leader Deleted Successfully");
+                if (leader == null) return NotFound();
+
+                // 1. Remove Leave Requests (where this leader applied)
+                if (leader.LeaveRequests != null)
+                {
+                    _context.LeaveRequests.RemoveRange(leader.LeaveRequests);
+                }
+
+                // 2. Remove Leave Balance
+                if (leader.LeaveBalance != null)
+                {
+                    _context.LeaveBalances.Remove(leader.LeaveBalance);
+                }
+
+                // 3. Remove Team Leader
+                _context.TeamLeaders.Remove(leader);
+
+                await _context.SaveChangesAsync();
+                await transaction.CommitAsync();
+
+                return Ok("Team Leader Deleted Successfully");
+            }
+            catch (Exception ex)
+            {
+                await transaction.RollbackAsync();
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
         }
     }
 }

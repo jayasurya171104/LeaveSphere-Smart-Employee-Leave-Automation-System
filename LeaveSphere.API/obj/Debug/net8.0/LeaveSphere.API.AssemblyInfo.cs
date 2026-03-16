@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("LeaveSphere.API")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+07b9cd72d093d6ae81ff8038df954a6639a8c4a1")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+85ac346955f5673797a87e4c81e0237d9471224a")]
 [assembly: System.Reflection.AssemblyProductAttribute("LeaveSphere.API")]
 [assembly: System.Reflection.AssemblyTitleAttribute("LeaveSphere.API")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

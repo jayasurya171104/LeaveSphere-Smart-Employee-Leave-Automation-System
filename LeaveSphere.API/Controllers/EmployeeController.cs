@@ -89,14 +89,43 @@ namespace LeaveSphere.API.Controllers
 
         [HttpDelete("{id}")]
         [Authorize(Roles = "Admin")]
-        public IActionResult DeleteEmployee(int id)
+        public async Task<IActionResult> DeleteEmployee(int id)
         {
-            var emp = _context.Employees.Find(id);
-            if (emp == null) return NotFound();
+            using var transaction = await _context.Database.BeginTransactionAsync();
+            try
+            {
+                var emp = await _context.Employees
+                    .Include(e => e.LeaveRequests)
+                    .Include(e => e.LeaveBalance)
+                    .FirstOrDefaultAsync(e => e.EmployeeId == id);
 
-            _context.Employees.Remove(emp);
-            _context.SaveChanges();
-            return Ok("Employee Deleted Successfully");
+                if (emp == null) return NotFound();
+
+                // 1. Remove Leave Requests
+                if (emp.LeaveRequests != null)
+                {
+                    _context.LeaveRequests.RemoveRange(emp.LeaveRequests);
+                }
+
+                // 2. Remove Leave Balance
+                if (emp.LeaveBalance != null)
+                {
+                    _context.LeaveBalances.Remove(emp.LeaveBalance);
+                }
+
+                // 3. Remove Employee
+                _context.Employees.Remove(emp);
+
+                await _context.SaveChangesAsync();
+                await transaction.CommitAsync();
+
+                return Ok("Employee Deleted Successfully");
+            }
+            catch (Exception ex)
+            {
+                await transaction.RollbackAsync();
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
         }
     }
 }
