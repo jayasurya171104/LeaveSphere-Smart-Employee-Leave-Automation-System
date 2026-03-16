@@ -1,6 +1,6 @@
-<<<<<<< HEAD
+
 # LeaveSphere-Smart-Employee-Leave-Automation-System
-=======
+
 🚀 LeaveSphere – Smart Employee Leave Automation System
 
 📌 Project Overview
