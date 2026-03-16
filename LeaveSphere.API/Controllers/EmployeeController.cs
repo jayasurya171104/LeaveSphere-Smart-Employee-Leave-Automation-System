@@ -14,7 +14,7 @@ namespace LeaveSphere.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "Admin,TeamLeader")]
     public class EmployeeController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
@@ -27,14 +27,26 @@ namespace LeaveSphere.API.Controllers
         [HttpGet] // GET /api/employee
         public IActionResult GetEmployees()
         {
-            var employees = _context.Employees
+            var roleClaim = User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value;
+            var email = User.FindFirst(System.Security.Claims.ClaimTypes.Name)?.Value ?? User.Identity?.Name;
+
+            var query = _context.Employees
                 .Include(e => e.Department)
                 .Include(e => e.LeaveBalance)
-                .ToList();
-            return Ok(employees);
+                .AsQueryable();
+
+            if (roleClaim == "TeamLeader")
+            {
+                var tl = _context.TeamLeaders.FirstOrDefault(t => t.Email == email);
+                if (tl == null) return Unauthorized("Team Leader not found");
+                query = query.Where(e => e.DepartmentId == tl.DepartmentId);
+            }
+
+            return Ok(query.ToList());
         }
 
         [HttpGet("all")] // GET /api/employee/all
+        [Authorize(Roles = "Admin")]
         public IActionResult GetAll()
         {
             var employees = _context.Employees
@@ -56,6 +68,7 @@ namespace LeaveSphere.API.Controllers
         }
 
         [HttpPut("{id}")]
+        [Authorize(Roles = "Admin")]
         public IActionResult UpdateEmployee(int id, [FromBody] Employee emp)
         {
             if (id != emp.EmployeeId) return BadRequest("ID mismatch");
@@ -75,6 +88,7 @@ namespace LeaveSphere.API.Controllers
         }
 
         [HttpDelete("{id}")]
+        [Authorize(Roles = "Admin")]
         public IActionResult DeleteEmployee(int id)
         {
             var emp = _context.Employees.Find(id);

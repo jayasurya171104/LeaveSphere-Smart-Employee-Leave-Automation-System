@@ -1,136 +1,104 @@
-@model List<LeaveSphere.Web.Models.ViewModels.LeaveReportViewModel>
+@model List<LeaveSphere.Web.Models.ViewModels.LeaveViewModel>
 @{
+    ViewData["Title"] = "Master Leave Report";
     Layout = "_Layout";
-    ViewData["BodyClass"] = "admin-inner-bg";
-    var groupedReport = Model.GroupBy(l => l.DepartmentName).ToList();
+    ViewData["BodyClass"] = "admin-bg";
 }
 
-<div class="report-header d-flex justify-content-between align-items-center mb-4">
-    <div>
-        <h2 class="mb-0 text-white"><i class="fas fa-chart-pie me-2 text-info"></i> Department Wise Leave Report</h2>
-        <p class="text-white-50 ms-4">Detailed day-wise view of employees on leave</p>
-    </div>
-    
-    <div class="filter-box glass-item p-3 shadow-sm" style="border-radius: 16px;">
-        <form method="get" action="/Leave/Report" class="d-flex align-items-center gap-3">
-            <label class="text-white fw-bold mb-0"><i class="fas fa-calendar-day me-1"></i> Select Date:</label>
-            <input type="date" name="date" class="form-control form-control-sm" 
-                   value="@ViewBag.SelectedDate" 
-                   style="width: 180px; background: white !important; color: #1a1a2e !important;" 
-                   onchange="this.form.submit()" />
-        </form>
-    </div>
+<div class="glass-item mb-4">
+    <h2 class="mb-3 text-white"><i class="fas fa-chart-line me-2 text-info"></i> Master Leave Report</h2>
+    <form method="get" action="/Leave/Report" class="row g-3 align-items-end">
+        <div class="col-md-3">
+            <label class="form-label small text-white-50">Department</label>
+            <select name="departmentId" class="form-control">
+                <option value="0">All Departments</option>
+                @if (ViewBag.Departments != null)
+                {
+                    foreach (var dept in (List<LeaveSphere.Web.Models.ViewModels.DepartmentViewModel>)ViewBag.Departments)
+                    {
+                        <option value="@dept.DepartmentId" selected="@(ViewBag.CurrentDept == dept.DepartmentId ? "selected" : null)">@dept.DepartmentName</option>
+                    }
+                }
+            </select>
+        </div>
+        <div class="col-md-2">
+            <label class="form-label small text-white-50">Start Date</label>
+            <input type="date" name="startDate" class="form-control" value="@ViewBag.StartDate" />
+        </div>
+        <div class="col-md-2">
+            <label class="form-label small text-white-50">End Date</label>
+            <input type="date" name="endDate" class="form-control" value="@ViewBag.EndDate" />
+        </div>
+        <div class="col-md-2">
+            <label class="form-label small text-white-50">Status</label>
+            <select name="status" class="form-control">
+                <option value="">All Status</option>
+                <option value="Pending" selected="@(ViewBag.CurrentStatus == "Pending" ? "selected" : null)">Pending</option>
+                <option value="Approved" selected="@(ViewBag.CurrentStatus == "Approved" ? "selected" : null)">Approved</option>
+                <option value="Rejected" selected="@(ViewBag.CurrentStatus == "Rejected" ? "selected" : null)">Rejected</option>
+            </select>
+        </div>
+        <div class="col-md-3 d-flex gap-2">
+            <button type="submit" class="btn btn-info flex-grow-1 shadow-sm"><i class="fas fa-search me-1"></i> Search</button>
+            <a href="/Leave/Report" class="btn btn-outline-light shadow-sm"><i class="fas fa-undo"></i></a>
+        </div>
+    </form>
 </div>
 
-@if (ViewBag.Message != null)
-{
-    <div class="alert alert-info glass-item py-3 mb-4">
-        <i class="fas fa-info-circle me-2"></i> @ViewBag.Message
-    </div>
-}
+<div class="glass-table shadow">
+    <div class="table-responsive">
+        <table class="table mb-0">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Department</th>
+                    <th>Leave From</th>
+                    <th>Leave To</th>
+                    <th>Type</th>
+                    <th>Reason</th>
+                    <th>Status</th>
+                    <th>Approved By</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model != null && Model.Any())
+                {
+                    foreach (var item in Model)
+                    {
+                        var badgeClass = item.Status == "Approved" ? "bg-success" :
+                                         item.Status == "Rejected" ? "bg-danger" : "bg-warning text-dark";
+                        string displayName = item.Role == "TeamLeader" ? (item.TeamLeader?.Name ?? "TL N/A") : (item.Employee?.Name ?? "Emp N/A");
+                        string deptName = item.Role == "TeamLeader" ? (item.TeamLeader?.Department?.DepartmentName ?? "N/A") : (item.Employee?.Department?.DepartmentName ?? "N/A");
 
-<div class="row">
-    <div class="col-md-12">
-        @if (!groupedReport.Any())
-        {
-            <div class="glass-item text-center py-5">
-                <i class="fas fa-calendar-check fa-4x mb-3 text-info" style="opacity: 0.3;"></i>
-                <h4 class="text-white">All Active!</h4>
-                <p class="text-white-50">No employees are on leave for the selected date.</p>
-            </div>
-        }
-        else
-        {
-            @foreach (var dept in groupedReport)
-            {
-                <div class="department-group mb-5">
-                    <div class="dept-title-bar d-flex justify-content-between align-items-center mb-3">
-                        <h4 class="text-info mb-0 fw-bold">
-                            <i class="fas fa-building me-2"></i> @dept.Key
-                        </h4>
-                        <span class="badge bg-white text-info px-3 py-2 shadow-sm" style="border-radius: 10px; font-weight: 800;">
-                            @dept.Count() Employees on Leave
-                        </span>
-                    </div>
-
-                    <div class="glass-table shadow">
-                        <table class="table mb-0">
-                            <thead>
-                                <tr>
-                                    <th style="width: 30%"><i class="fas fa-user me-2"></i> Employee Name</th>
-                                    <th style="width: 20%"><i class="fas fa-calendar-alt me-2"></i> Leave Date</th>
-                                    <th style="width: 25%"><i class="fas fa-tag me-2"></i> Leave Type</th>
-                                    <th style="width: 25%"><i class="fas fa-info-circle me-2"></i> Status</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach (var item in dept)
-                                {
-                                    <tr>
-                                        <td>
-                                            <span class="badge bg-info text-dark px-3 py-2" style="border-radius: 8px; font-weight: 700; font-size: 0.9rem;">
-                                                <i class="fas fa-user-circle me-1"></i> @item.EmployeeName
-                                            </span>
-                                        </td>
-                                        <td>
-                                            <span class="badge bg-light text-dark px-3 py-2" style="border-radius: 8px; font-weight: 600;">
-                                                <i class="fas fa-calendar-day me-1"></i> @item.LeaveDate.ToString("dd MMM yyyy")
-                                            </span>
-                                        </td>
-                                        <td>
-                                            <span class="badge bg-light text-dark px-3 py-2" style="border-radius: 8px; font-weight: 500; border: 1px solid #ddd;">
-                                                @item.LeaveType
-                                            </span>
-                                        </td>
-                                        <td>
-                                            <span class="badge @(item.Status == "Approved" ? "bg-success" : item.Status == "Rejected" ? "bg-danger" : "bg-warning text-dark") px-3 py-2" style="border-radius: 8px; font-weight: 600;">
-                                                @item.Status
-                                            </span>
-                                        </td>
-                                    </tr>
-                                }
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            }
-        }
+                        <tr>
+                            <td>
+                                <div class="fw-bold @(item.Role == "TeamLeader" ? "text-warning" : "text-white")">
+                                    @displayName
+                                    @if(item.Role == "TeamLeader") {
+                                        <span class="badge bg-warning text-dark ms-1" style="font-size: 0.65rem;">TL</span>
+                                    }
+                                </div>
+                            </td>
+                            <td><span class="badge bg-light text-dark">@deptName</span></td>
+                            <td>@item.StartDate.ToString("dd MMM yyyy")</td>
+                            <td>@item.EndDate.ToString("dd MMM yyyy")</td>
+                            <td><span class="text-info fw-medium">@item.LeaveType</span></td>
+                            <td style="max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="@item.Reason">@item.Reason</td>
+                            <td><span class="badge @badgeClass">@item.Status</span></td>
+                            <td><span class="text-white-50">@(item.ApprovedBy ?? (item.Role == "TeamLeader" ? "Admin" : "TL N/A"))</span></td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="8" class="text-center py-5 text-muted">
+                            <i class="fas fa-folder-open fa-3x mb-3 d-block opacity-25"></i>
+                            No leave records found matching your selection.
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
     </div>
 </div>
-
-<style>
-    .dept-title-bar {
-        border-bottom: 2px solid rgba(255, 255, 255, 0.1);
-        padding-bottom: 10px;
-    }
-    .report-header h2 {
-        font-weight: 800;
-        letter-spacing: -0.5px;
-    }
-    .filter-box:hover {
-        transform: translateY(-2px);
-        transition: 0.3s ease;
-    }
-    .glass-table {
-        background: rgba(255, 255, 255, 0.05);
-        backdrop-filter: blur(10px);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        border-radius: 16px;
-        overflow: hidden;
-    }
-    .table thead th {
-        background: rgba(255, 255, 255, 0.1);
-        color: #0dcaf0 !important;
-        border: none;
-        padding: 15px 20px;
-        font-weight: 700;
-        text-transform: uppercase;
-        font-size: 0.8rem;
-        letter-spacing: 1px;
-    }
-    .table tbody td {
-        padding: 15px 20px;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-        vertical-align: middle;
-    }
-</style>

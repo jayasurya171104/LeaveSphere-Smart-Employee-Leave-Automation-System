@@ -1,0 +1,51 @@
+@model List<LeaveSphere.Web.Models.ViewModels.EmployeeViewModel>
+@{
+    ViewData["Title"] = "Department Employees";
+    Layout = "_Layout";
+    ViewData["BodyClass"] = "admin-bg";
+}
+
+<div class="glass-table shadow mt-4">
+    <div class="p-4 border-bottom border-secondary d-flex justify-content-between align-items-center">
+        <div>
+            <h2 class="mb-1"><i class="fas fa-users me-2 text-info"></i> Department Employees</h2>
+            <p class="text-white-50 mb-0">List of all employees in your department (View-only)</p>
+        </div>
+        <span class="badge bg-info p-2 px-3">@Model.Count Total Members</span>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-hover mb-0">
+            <thead>
+                <tr>
+                    <th>Employee Name</th>
+                    <th>Email</th>
+                    <th>Role</th>
+                    <th>Department</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model != null && Model.Any())
+                {
+                    foreach (var emp in Model)
+                    {
+                        <tr>
+                            <td class="fw-bold">@emp.Name</td>
+                            <td>@emp.Email</td>
+                            <td><span class="badge bg-dark border border-secondary">@emp.Role</span></td>
+                            <td><span class="text-info">@(emp.Department?.DepartmentName ?? "N/A")</span></td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="4" class="text-center py-5 text-muted">
+                            <i class="fas fa-user-slash fa-3x mb-3 d-block opacity-25"></i>
+                            No employees found in your department.
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

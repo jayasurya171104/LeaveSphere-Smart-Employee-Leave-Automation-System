@@ -67,12 +67,20 @@ namespace LeaveSphere.API.Controllers
         {
             try
             {
-                var dept = _context.Departments.Include(d => d.Employees).FirstOrDefault(d => d.DepartmentId == id);
+                var dept = _context.Departments
+                    .Include(d => d.Employees)
+                    .Include(d => d.TeamLeader)
+                    .FirstOrDefault(d => d.DepartmentId == id);
                 if (dept == null) return NotFound("Department not found");
 
                 if (dept.Employees != null && dept.Employees.Any())
                 {
                     return BadRequest("Cannot delete department because it contains employees. Please reassignment them first.");
+                }
+
+                if (dept.TeamLeader != null)
+                {
+                    return BadRequest("Cannot delete department because it has a Team Leader. Please remove the Team Leader first.");
                 }
 
                 _context.Departments.Remove(dept);

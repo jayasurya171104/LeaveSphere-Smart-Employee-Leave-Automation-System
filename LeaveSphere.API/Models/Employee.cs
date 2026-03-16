@@ -12,11 +12,11 @@ namespace LeaveSphere.API.Models
 
         [Required]
         [MaxLength(100)]
-        public string Name { get; set; }
+        public required string Name { get; set; }
 
         [Required]
         [MaxLength(100)]
-        public string Email { get; set; }
+        public required string Email { get; set; }
 
         public string? PasswordHash { get; set; }
 

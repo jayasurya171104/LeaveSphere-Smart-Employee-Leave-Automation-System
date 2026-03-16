@@ -14,5 +14,6 @@ namespace LeaveSphere.API.Data
         public DbSet<LeaveRequest> LeaveRequests { get; set; }
         public DbSet<Department> Departments { get; set; }
         public DbSet<LeaveBalance> LeaveBalances { get; set; }
+        public DbSet<TeamLeader> TeamLeaders { get; set; }
     }
 }

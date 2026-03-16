@@ -1,0 +1,77 @@
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "My Dashboard";
+    ViewData["BodyClass"] = "employee-bg";
+}
+
+<div class="dashboard-header mb-5">
+    <h1 class="dashboard-title">My Dashboard</h1>
+    <p class="text-secondary small">Access your leaves, apply for new ones, or view the team calendar.</p>
+</div>
+
+<div class="row g-4 mt-5">
+    <!-- My Leaves Card -->
+    <div class="col-md-4">
+        <a href="/employee/myleaves" class="clickable-card h-100">
+            <div class="glass-item text-center p-4 h-100 d-flex flex-column justify-content-center">
+                <div class="icon-circle mx-auto mb-3 bg-primary-saas-dim text-primary">
+                    <i class="fas fa-file-alt fa-lg"></i>
+                </div>
+                <h4 class="fw-bold text-light">My Leaves</h4>
+                <p class="text-secondary small mb-0">View your leave history and status</p>
+            </div>
+        </a>
+    </div>
+
+    <!-- Apply Leave Card -->
+    <div class="col-md-4">
+        <a href="/employee/applyleave" class="clickable-card h-100">
+            <div class="glass-item text-center p-4 h-100 d-flex flex-column justify-content-center">
+                <div class="icon-circle mx-auto mb-3 bg-warning-saas-dim text-warning">
+                    <i class="fas fa-paper-plane fa-lg"></i>
+                </div>
+                <h4 class="fw-bold text-light">Apply Leave</h4>
+                <p class="text-secondary small mb-0">Submit a new leave request</p>
+            </div>
+        </a>
+    </div>
+
+    <!-- Leave Calendar Card -->
+    <div class="col-md-4">
+        <a href="/employee/calendar" class="clickable-card h-100">
+            <div class="glass-item text-center p-4 h-100 d-flex flex-column justify-content-center">
+                <div class="icon-circle mx-auto mb-3 bg-success-saas-dim text-success">
+                    <i class="fas fa-calendar-alt fa-lg"></i>
+                </div>
+                <h4 class="fw-bold text-light">Leave Calendar</h4>
+                <p class="text-secondary small mb-0">See when your teammates are away</p>
+            </div>
+        </a>
+    </div>
+</div>
+
+<style>
+    .icon-circle {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .bg-primary-saas-dim { background: rgba(13, 110, 253, 0.1); }
+    .bg-warning-saas-dim { background: rgba(255, 193, 7, 0.1); }
+    .bg-success-saas-dim { background: rgba(25, 135, 84, 0.1); }
+    
+    .clickable-card {
+        text-decoration: none;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .clickable-card:hover {
+        transform: translateY(-5px);
+    }
+    .clickable-card:hover .glass-item {
+        background: rgba(255, 255, 255, 0.15);
+        border-color: rgba(255, 255, 255, 0.2);
+    }
+</style>

@@ -23,6 +23,8 @@ namespace LeaveSphere.API.Repositories
                     .ThenInclude(e => e!.LeaveBalance)
                 .Include(l => l.Employee)
                     .ThenInclude(e => e!.Department)
+                .Include(l => l.TeamLeader)
+                    .ThenInclude(t => t!.Department)
                 .ToListAsync();
         }
 
@@ -33,6 +35,8 @@ namespace LeaveSphere.API.Repositories
                     .ThenInclude(e => e!.LeaveBalance)
                 .Include(l => l.Employee)
                     .ThenInclude(e => e!.Department)
+                .Include(l => l.TeamLeader)
+                    .ThenInclude(t => t!.Department)
                 .FirstOrDefaultAsync(l => l.LeaveId == id);
         }
 

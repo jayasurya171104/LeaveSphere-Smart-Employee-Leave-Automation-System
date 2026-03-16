@@ -10,12 +10,17 @@ namespace LeaveSphere.API.Models
         [Key]
         public int BalanceId { get; set; }
 
-        [Required]
-        public int EmployeeId { get; set; }
+        public int? EmployeeId { get; set; }
 
         [ForeignKey("EmployeeId")]
         [System.Text.Json.Serialization.JsonIgnore]
         public Employee? Employee { get; set; }
+
+        public int? TeamLeaderId { get; set; }
+
+        [ForeignKey("TeamLeaderId")]
+        [System.Text.Json.Serialization.JsonIgnore]
+        public TeamLeader? TeamLeader { get; set; }
 
         public int TotalLeaves { get; set; } = 20;
 

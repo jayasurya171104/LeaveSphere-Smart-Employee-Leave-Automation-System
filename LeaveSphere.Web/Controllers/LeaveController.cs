@@ -19,6 +19,7 @@ namespace LeaveSphere.Web.Controllers
 
         [HttpGet]
         [Route("Calendar")]
+        [Route("~/employee/calendar")]
         public IActionResult Calendar()
         {
             var token = HttpContext.Session.GetString("JWToken");
@@ -32,6 +33,7 @@ namespace LeaveSphere.Web.Controllers
 
         [HttpGet]
         [Route("MyLeaves")]
+        [Route("~/employee/myleaves")]
         [Route("")]
         [Route("Index")]
         public async Task<IActionResult> MyLeaves()
@@ -55,7 +57,7 @@ namespace LeaveSphere.Web.Controllers
             var profileResponse = await _api.GetAsync("auth/profile", token);
             if (!string.IsNullOrEmpty(profileResponse) && profileResponse.Trim().StartsWith("{"))
             {
-                var profile = JsonConvert.DeserializeObject<EmployeeViewModel>(profileResponse);
+                var profile = JsonConvert.DeserializeObject<dynamic>(profileResponse);
                 ViewBag.Profile = profile;
             }
 
@@ -64,6 +66,7 @@ namespace LeaveSphere.Web.Controllers
 
         [HttpGet]
         [Route("Apply")]
+        [Route("~/employee/applyleave")]
         public IActionResult Apply()
         {
             return View();
@@ -72,6 +75,7 @@ namespace LeaveSphere.Web.Controllers
         [HttpPost]
 [ValidateAntiForgeryToken]
 [Route("Apply")]
+[Route("~/employee/applyleave")]
 public async Task<IActionResult> Apply(LeaveViewModel model)
 {
     var token = HttpContext.Session.GetString("JWToken");
@@ -138,6 +142,24 @@ public async Task<IActionResult> Apply(LeaveViewModel model)
             return View(leaves);
         }
 
+        [HttpGet]
+        [Route("DeptLeaves")]
+        public async Task<IActionResult> DeptLeaves()
+        {
+            var token = HttpContext.Session.GetString("JWToken");
+            if (token == null) return RedirectToAction("Login", "Account");
+
+            var response = await _api.GetAsync("leave", token);
+            if (string.IsNullOrEmpty(response) || !response.Trim().StartsWith("["))
+            {
+                ViewBag.Message = "No department leaves found.";
+                return View(new List<LeaveViewModel>());
+            }
+
+            var leaves = JsonConvert.DeserializeObject<List<LeaveViewModel>>(response);
+            return View(leaves);
+        }
+
         [HttpPost]
         [Route("ApproveRequest/{id}")]
         public async Task<IActionResult> ApproveRequest(int id)
@@ -184,24 +206,107 @@ public async Task<IActionResult> Apply(LeaveViewModel model)
             });
         }
         [HttpGet]
-        [Route("Report")]
-        public async Task<IActionResult> Report(DateTime? date)
+        [Route("EmployeeReport")]
+        public async Task<IActionResult> EmployeeReport(int? departmentId, DateTime? startDate, DateTime? endDate, string? status)
         {
             var token = HttpContext.Session.GetString("JWToken");
             if (token == null) return RedirectToAction("Login", "Account");
 
-            var selectedDate = date ?? DateTime.Today;
-            ViewBag.SelectedDate = selectedDate.ToString("yyyy-MM-dd");
+            await PopulateDepartments();
 
-            var response = await _api.GetAsync($"leave/report?date={selectedDate:yyyy-MM-dd}", token);
+            string qs = $"?role=Employee";
+            if (departmentId.HasValue && departmentId > 0) qs += $"&departmentId={departmentId}";
+            if (startDate.HasValue) qs += $"&startDate={startDate:yyyy-MM-dd}";
+            if (endDate.HasValue) qs += $"&endDate={endDate:yyyy-MM-dd}";
+            if (!string.IsNullOrEmpty(status)) qs += $"&status={status}";
 
-            if (string.IsNullOrEmpty(response) || !response.Trim().StartsWith("["))
+            var response = await _api.GetAsync($"leave/report{qs}", token);
+            var reportData = new List<LeaveViewModel>();
+
+            if (!string.IsNullOrEmpty(response) && response.Trim().StartsWith("["))
             {
-                ViewBag.Message = response.Contains("Error") ? response : "No leave records found for this date.";
-                return View(new List<LeaveReportViewModel>());
+                reportData = JsonConvert.DeserializeObject<List<LeaveViewModel>>(response) ?? new List<LeaveViewModel>();
             }
 
-            var reportData = JsonConvert.DeserializeObject<List<LeaveReportViewModel>>(response);
+            ViewBag.CurrentDept = departmentId;
+            ViewBag.CurrentStatus = status;
+            ViewBag.StartDate = startDate?.ToString("yyyy-MM-dd");
+            ViewBag.EndDate = endDate?.ToString("yyyy-MM-dd");
+
+            return View(reportData);
+        }
+
+        [HttpGet]
+        [Route("TeamLeaderReport")]
+        public async Task<IActionResult> TeamLeaderReport(int? departmentId, DateTime? startDate, DateTime? endDate, string? status)
+        {
+            var token = HttpContext.Session.GetString("JWToken");
+            if (token == null) return RedirectToAction("Login", "Account");
+
+            await PopulateDepartments();
+
+            string qs = $"?role=TeamLeader";
+            if (departmentId.HasValue && departmentId > 0) qs += $"&departmentId={departmentId}";
+            if (startDate.HasValue) qs += $"&startDate={startDate:yyyy-MM-dd}";
+            if (endDate.HasValue) qs += $"&endDate={endDate:yyyy-MM-dd}";
+            if (!string.IsNullOrEmpty(status)) qs += $"&status={status}";
+
+            var response = await _api.GetAsync($"leave/report{qs}", token);
+            var reportData = new List<LeaveViewModel>();
+
+            if (!string.IsNullOrEmpty(response) && response.Trim().StartsWith("["))
+            {
+                reportData = JsonConvert.DeserializeObject<List<LeaveViewModel>>(response) ?? new List<LeaveViewModel>();
+            }
+
+            ViewBag.CurrentDept = departmentId;
+            ViewBag.CurrentStatus = status;
+            ViewBag.StartDate = startDate?.ToString("yyyy-MM-dd");
+            ViewBag.EndDate = endDate?.ToString("yyyy-MM-dd");
+
+            return View(reportData);
+        }
+
+        private async Task PopulateDepartments()
+        {
+            var token = HttpContext.Session.GetString("JWToken");
+            var response = await _api.GetAsync("department", token);
+            if (!string.IsNullOrEmpty(response) && response.Trim().StartsWith("["))
+            {
+                var depts = JsonConvert.DeserializeObject<List<DepartmentViewModel>>(response) ?? new List<DepartmentViewModel>();
+                ViewBag.Departments = depts;
+            }
+        }
+
+        [HttpGet]
+        [Route("Report")]
+        public async Task<IActionResult> Report(int? departmentId, DateTime? startDate, DateTime? endDate, string? status)
+        {
+            var token = HttpContext.Session.GetString("JWToken");
+            if (token == null) return RedirectToAction("Login", "Account");
+
+            await PopulateDepartments();
+
+            // No role filter = Master Report
+            string qs = $"?role="; 
+            if (departmentId.HasValue && departmentId > 0) qs += $"&departmentId={departmentId}";
+            if (startDate.HasValue) qs += $"&startDate={startDate:yyyy-MM-dd}";
+            if (endDate.HasValue) qs += $"&endDate={endDate:yyyy-MM-dd}";
+            if (!string.IsNullOrEmpty(status)) qs += $"&status={status}";
+
+            var response = await _api.GetAsync($"leave/report{qs}", token);
+            var reportData = new List<LeaveViewModel>();
+
+            if (!string.IsNullOrEmpty(response) && response.Trim().StartsWith("["))
+            {
+                reportData = JsonConvert.DeserializeObject<List<LeaveViewModel>>(response) ?? new List<LeaveViewModel>();
+            }
+
+            ViewBag.CurrentDept = departmentId;
+            ViewBag.CurrentStatus = status;
+            ViewBag.StartDate = startDate?.ToString("yyyy-MM-dd");
+            ViewBag.EndDate = endDate?.ToString("yyyy-MM-dd");
+
             return View(reportData);
         }
     }

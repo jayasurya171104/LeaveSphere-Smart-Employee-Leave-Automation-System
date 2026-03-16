@@ -15,9 +15,23 @@ namespace LeaveSphere.API.Models
         [ForeignKey("EmployeeId")]
         public Employee? Employee { get; set; }
 
+        public int? TeamLeaderId { get; set; }
+
+        [ForeignKey("TeamLeaderId")]
+        public TeamLeader? TeamLeader { get; set; }
+
+        public int DepartmentId { get; set; }
+
+        [Required]
+        [MaxLength(20)]
+        public string Role { get; set; } = "Employee";
+
+        [MaxLength(100)]
+        public string? ApprovedBy { get; set; }
+
         [Required]
         [MaxLength(50)]
-        public string? LeaveType { get; set; }
+        public required string LeaveType { get; set; }
 
         [Required]
         public DateTime StartDate { get; set; }
@@ -27,7 +41,7 @@ namespace LeaveSphere.API.Models
 
         [Required]
         [MaxLength(500)]
-        public string? Reason { get; set; }
+        public required string Reason { get; set; }
 
         public string? Status { get; set; } = "Pending";
 

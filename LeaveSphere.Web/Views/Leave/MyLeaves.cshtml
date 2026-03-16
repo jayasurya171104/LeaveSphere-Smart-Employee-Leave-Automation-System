@@ -18,15 +18,15 @@
 </div>
 
 @{
-    var profile = ViewBag.Profile as LeaveSphere.Web.Models.ViewModels.EmployeeViewModel;
+    var profile = ViewBag.Profile as dynamic;
     var balance = profile?.LeaveBalance;
 }
 
 @if (profile != null)
 {
-    var total = profile.LeaveBalance?.TotalLeaves ?? 20;
-    var used = profile.LeaveBalance?.UsedLeaves ?? 0;
-    var remaining = profile.LeaveBalance?.RemainingLeaves ?? 20;
+    var total = profile.LeaveBalance?.totalLeaves ?? 20;
+    var used = profile.LeaveBalance?.usedLeaves ?? 0;
+    var remaining = profile.LeaveBalance?.remainingLeaves ?? 20;
 
     <div class="row mb-4">
         <div class="col-md-4">

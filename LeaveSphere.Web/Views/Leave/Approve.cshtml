@@ -4,10 +4,22 @@
     ViewData["BodyClass"] = "admin-inner-bg";
 }
 
+@{
+    var tokenString = Context.Session.GetString("JWToken");
+    string userRole = "";
+    if (!string.IsNullOrEmpty(tokenString))
+    {
+        var handler = new System.IdentityModel.Tokens.Jwt.JwtSecurityTokenHandler();
+        var jwtSecurityToken = handler.ReadJwtToken(tokenString);
+        var roleClaim = jwtSecurityToken.Claims.FirstOrDefault(c => c.Type == System.Security.Claims.ClaimTypes.Role || c.Type == "role");
+        userRole = roleClaim?.Value ?? "";
+    }
+}
+
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h2 class="mb-0">
         <i class="fas fa-check-double me-2 text-info"></i>
-        @(ViewBag.Filter != null ? $"{ViewBag.Filter} Leaves" : "Approve Leaves")
+        @(ViewBag.Filter != null ? $"{ViewBag.Filter} Leaves" : (userRole == "TeamLeader" ? "Department Leave Approvals" : "Approve Leaves"))
     </h2>
     @if (ViewBag.Filter != null)
     {
@@ -43,10 +55,26 @@
                     <tr>
                         <td>
                             <div class="fw-bold fs-6">
-                                @(leave.Employee?.Name ?? $"Employee #{leave.EmployeeId}")
+                                @if (leave.Role == "TeamLeader")
+                                {
+                                    @(leave.TeamLeader?.Name ?? $"Team Leader #{leave.TeamLeaderId}")
+                                    <span class="badge bg-primary ms-1" style="font-size: 0.7rem;">TL</span>
+                                }
+                                else
+                                {
+                                    @(leave.Employee?.Name ?? $"Employee #{leave.EmployeeId}")
+                                }
                             </div>
                             <div class="text-muted small">
-                                <i class="fas fa-building me-1"></i> @(leave.Employee?.Department?.DepartmentName ?? "N/A")
+                                <i class="fas fa-building me-1"></i> 
+                                @if (leave.Role == "TeamLeader")
+                                {
+                                    @(leave.TeamLeader?.Department?.DepartmentName ?? "N/A")
+                                }
+                                else
+                                {
+                                    @(leave.Employee?.Department?.DepartmentName ?? "N/A")
+                                }
                             </div>
                         </td>
                         <td><span class="fw-medium">@leave.StartDate.ToString("dd MMM yyyy")</span></td>
@@ -78,6 +106,12 @@
                                 <span class="badge @badgeClass px-3 py-2 shadow-sm" style="border-radius: 8px; font-size: 0.85rem;">
                                     @leave.Status
                                 </span>
+                                @if (!string.IsNullOrEmpty(leave.ApprovedBy))
+                                {
+                                    <div class="small text-muted mt-1" style="font-size: 0.7rem;">
+                                        By: @leave.ApprovedBy
+                                    </div>
+                                }
                             }
                         </td>
                     </tr>

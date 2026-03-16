@@ -1,0 +1,307 @@
+<link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.9/main.min.css" rel="stylesheet" />
+
+<style>
+    /* ============================
+       CALENDAR GLASS CONTAINER
+       ============================ */
+    .calendar-container {
+        background: rgba(255, 255, 255, 0.08);
+        backdrop-filter: blur(15px);
+        border-radius: 20px;
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        padding: 25px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+    }
+
+    /* ============================
+       FULLCALENDAR THEME OVERRIDES
+       ============================ */
+    .fc {
+        --fc-border-color: rgba(255, 255, 255, 0.1);
+        --fc-button-bg-color: rgba(0, 123, 255, 0.7);
+        --fc-button-border-color: rgba(0, 123, 255, 0.5);
+        --fc-button-hover-bg-color: rgba(0, 123, 255, 0.9);
+        --fc-button-hover-border-color: rgba(0, 123, 255, 0.8);
+        --fc-button-active-bg-color: #0056b3;
+        --fc-button-active-border-color: #0056b3;
+        --fc-today-bg-color: rgba(0, 123, 255, 0.12);
+        --fc-neutral-bg-color: transparent;
+        --fc-page-bg-color: transparent;
+        --fc-event-border-color: transparent;
+        color: white;
+    }
+
+    .fc .fc-toolbar-title {
+        font-size: 1.6rem;
+        font-weight: 700;
+        letter-spacing: 1px;
+    }
+
+    .fc .fc-button {
+        border-radius: 10px !important;
+        font-weight: 600;
+        padding: 6px 16px;
+        text-transform: uppercase;
+        font-size: 0.78rem;
+        letter-spacing: 0.5px;
+        transition: all 0.2s ease;
+    }
+
+    .fc .fc-col-header-cell {
+        background: rgba(255, 255, 255, 0.06);
+        padding: 10px 0;
+    }
+
+    .fc .fc-col-header-cell-cushion {
+        color: rgba(255, 255, 255, 0.85);
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.8rem;
+        letter-spacing: 1px;
+        text-decoration: none;
+    }
+
+    .fc .fc-daygrid-day-number {
+        color: rgba(255, 255, 255, 0.7);
+        font-weight: 500;
+        text-decoration: none;
+        padding: 8px;
+    }
+
+    .fc .fc-daygrid-day.fc-day-today .fc-daygrid-day-number {
+        color: #00d2ff;
+        font-weight: 700;
+    }
+
+    .fc-event {
+        border-radius: 8px !important;
+        padding: 3px 8px !important;
+        font-size: 0.8rem !important;
+        font-weight: 500;
+        cursor: pointer;
+        border: none !important;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+        transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .fc-event:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+    }
+
+    /* Modal Styles */
+    .leave-modal-backdrop {
+        display: none;
+        position: fixed;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background: rgba(0, 0, 0, 0.6);
+        backdrop-filter: blur(6px);
+        z-index: 9998;
+    }
+
+    .leave-modal {
+        display: none;
+        position: fixed;
+        top: 50%; left: 50%;
+        transform: translate(-50%, -50%) scale(0.9);
+        background: rgba(20, 20, 40, 0.95);
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        border-radius: 24px;
+        padding: 0;
+        z-index: 9999;
+        min-width: 380px;
+        max-width: 450px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+        opacity: 0;
+        transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .leave-modal.show {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+    }
+
+    .leave-modal-header {
+        padding: 20px 25px 15px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .leave-modal-close {
+        background: rgba(255, 255, 255, 0.1);
+        border: none;
+        color: rgba(255, 255, 255, 0.6);
+        font-size: 1.2rem;
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .status-badge {
+        display: inline-block;
+        padding: 4px 14px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 700;
+        text-transform: uppercase;
+    }
+
+    .status-approved { background: rgba(40, 167, 69, 0.2); color: #5bff8a; }
+    .status-pending  { background: rgba(253, 126, 20, 0.2); color: #ffb347; }
+    .status-rejected { background: rgba(220, 53, 69, 0.2); color: #ff6b7a; }
+
+    .calendar-legend {
+        display: flex;
+        gap: 20px;
+        flex-wrap: wrap;
+    }
+
+    .legend-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.85rem;
+        color: rgba(255, 255, 255, 0.75);
+    }
+
+    .legend-dot {
+        width: 12px;
+        height: 12px;
+        border-radius: 4px;
+    }
+</style>
+
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+    <h2 class="mb-0"><i class="fas fa-calendar-alt me-2 text-info"></i> Leave Calendar</h2>
+    <div class="calendar-legend">
+        <div class="legend-item"><div class="legend-dot" style="background:#28a745;"></div> Approved</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#fd7e14;"></div> Pending</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#dc3545;"></div> Rejected</div>
+    </div>
+</div>
+
+<div class="calendar-container">
+    <div id="leaveCalendar"></div>
+</div>
+
+<!-- Detail Modal -->
+<div class="leave-modal-backdrop" id="modalBackdrop"></div>
+<div class="leave-modal" id="leaveDetailModal">
+    <div class="leave-modal-header">
+        <h5 class="text-white mb-0"><i class="fas fa-info-circle me-2 text-info"></i> Leave Details</h5>
+        <button class="leave-modal-close" id="modalCloseBtn">&times;</button>
+    </div>
+    <div class="p-4">
+        <div class="mb-3">
+            <label class="text-secondary small fw-bold text-uppercase">Employee</label>
+            <div id="modalEmployee" class="fw-bold text-white fs-5">—</div>
+        </div>
+        <div class="row mb-3">
+            <div class="col-6">
+                <label class="text-secondary small fw-bold text-uppercase">Type</label>
+                <div id="modalLeaveType" class="text-white">—</div>
+            </div>
+            <div class="col-6">
+                <label class="text-secondary small fw-bold text-uppercase">Status</label>
+                <div id="modalStatus">—</div>
+            </div>
+        </div>
+        <div class="row mb-3">
+            <div class="col-6">
+                <label class="text-secondary small fw-bold text-uppercase">Start</label>
+                <div id="modalStartDate" class="text-white">—</div>
+            </div>
+            <div class="col-6">
+                <label class="text-secondary small fw-bold text-uppercase">End</label>
+                <div id="modalEndDate" class="text-white">—</div>
+            </div>
+        </div>
+        <div class="mb-0">
+            <label class="text-secondary small fw-bold text-uppercase">Reason</label>
+            <div id="modalReason" class="text-white small opacity-75">—</div>
+        </div>
+    </div>
+</div>
+
+<input type="hidden" id="jwtToken" value="@ViewBag.Token" />
+<input type="hidden" id="apiBaseUrl" value="@ViewBag.ApiBaseUrl" />
+
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.9/index.global.min.js"></script>
+<script>
+    (function() {
+        document.addEventListener('DOMContentLoaded', function () {
+            const tokenEl = document.getElementById('jwtToken');
+            const apiEl = document.getElementById('apiBaseUrl');
+            const calendarEl = document.getElementById('leaveCalendar');
+
+            if (!tokenEl || !apiEl || !calendarEl) return;
+
+            const token = tokenEl.value;
+            const apiBase = apiEl.value;
+
+            const calendar = new FullCalendar.Calendar(calendarEl, {
+                initialView: 'dayGridMonth',
+                headerToolbar: {
+                    left: 'prev,next today',
+                    center: 'title',
+                    right: 'dayGridMonth,timeGridWeek,listMonth'
+                },
+                height: 'auto',
+                dayMaxEvents: 3,
+                events: function (info, successCallback, failureCallback) {
+                    fetch(apiBase + 'leave/calendar', {
+                        headers: { 'Authorization': 'Bearer ' + token }
+                    })
+                    .then(resp => {
+                        if (!resp.ok) throw new Error('API error');
+                        return resp.json();
+                    })
+                    .then(data => successCallback(data))
+                    .catch(err => {
+                        console.error('Calendar Error:', err);
+                        failureCallback(err);
+                    });
+                },
+                eventClick: function (info) {
+                    const props = info.event.extendedProps;
+                    document.getElementById('modalEmployee').textContent = props.employeeName;
+                    document.getElementById('modalLeaveType').textContent = props.leaveType;
+                    document.getElementById('modalStartDate').textContent = props.startDate;
+                    document.getElementById('modalEndDate').textContent = props.endDate;
+                    document.getElementById('modalReason').textContent = props.reason || '—';
+
+                    const statusEl = document.getElementById('modalStatus');
+                    const statusClass = props.status === 'Approved' ? 'status-approved' :
+                                      props.status === 'Rejected' ? 'status-rejected' : 'status-pending';
+                    statusEl.innerHTML = `<span class="status-badge ${statusClass}">${props.status}</span>`;
+
+                    document.getElementById('modalBackdrop').style.display = 'block';
+                    const modal = document.getElementById('leaveDetailModal');
+                    modal.style.display = 'block';
+                    setTimeout(() => modal.classList.add('show'), 10);
+                }
+            });
+
+            calendar.render();
+
+            function closeModal() {
+                const modal = document.getElementById('leaveDetailModal');
+                modal.classList.remove('show');
+                setTimeout(() => {
+                    modal.style.display = 'none';
+                    document.getElementById('modalBackdrop').style.display = 'none';
+                }, 250);
+            }
+
+            document.getElementById('modalCloseBtn').onclick = closeModal;
+            document.getElementById('modalBackdrop').onclick = closeModal;
+        });
+    })();
+</script>

@@ -31,10 +31,19 @@ namespace LeaveSphere.Web.Controllers
                 var roleClaim = jwtToken.Claims
                     .FirstOrDefault(c => c.Type == ClaimTypes.Role || c.Type == "role");
 
-                if (roleClaim != null && roleClaim.Value == "Admin")
-                    return RedirectToAction("Index", "Dashboard");
+                if (roleClaim != null)
+                {
+                    if (roleClaim.Value == "Admin")
+                        return RedirectToAction("Admin", "Dashboard");
+                    if (roleClaim.Value == "TeamLeader")
+                        return RedirectToAction("TeamLeader", "Dashboard");
+
+                    return Redirect("/Employee/Dashboard");
+                }
                 else
-                    return RedirectToAction("MyLeaves", "Leave");
+                {
+                    return Redirect("/Employee/Dashboard");
+                }
             }
 
             // 🚫 Prevent browser from caching the login page
@@ -94,13 +103,18 @@ namespace LeaveSphere.Web.Controllers
                 }
 
                 // 🔥 Redirect based on role
-                if (roleClaim != null && roleClaim.Value == "Admin")
+                if (roleClaim != null)
                 {
-                    return RedirectToAction("Index", "Dashboard");
+                    if (roleClaim.Value == "Admin")
+                        return RedirectToAction("Admin", "Dashboard");
+                    if (roleClaim.Value == "TeamLeader")
+                        return RedirectToAction("TeamLeader", "Dashboard");
+
+                    return Redirect("/Employee/Dashboard");
                 }
                 else
                 {
-                    return RedirectToAction("MyLeaves", "Leave");
+                    return Redirect("/Employee/Dashboard");
                 }
             }
 
@@ -114,6 +128,35 @@ namespace LeaveSphere.Web.Controllers
         {
             HttpContext.Session.Clear();
             return RedirectToAction("Login");
+        }
+
+        [HttpGet]
+        [Route("Profile")]
+        public async Task<IActionResult> Profile()
+        {
+            var token = HttpContext.Session.GetString("JWToken");
+            if (string.IsNullOrEmpty(token)) return RedirectToAction("Login");
+
+            var response = await _api.GetAsync("auth/profile", token);
+            Console.WriteLine($"[Web] Profile Response: {response}");
+            if (string.IsNullOrEmpty(response) || response.Contains("Error"))
+            {
+                ViewBag.Error = "Could not fetch profile data.";
+                return View();
+            }
+
+            var profile = Newtonsoft.Json.JsonConvert.DeserializeObject<dynamic>(response);
+            return View(profile);
+        }
+
+        [HttpGet]
+        [Route("Settings")]
+        public IActionResult Settings()
+        {
+            var token = HttpContext.Session.GetString("JWToken");
+            if (string.IsNullOrEmpty(token)) return RedirectToAction("Login");
+
+            return View();
         }
     }
 }

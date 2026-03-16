@@ -65,7 +65,6 @@ namespace LeaveSphere.API.Migrations
                         .HasColumnType("varchar(100)");
 
                     b.Property<string>("PasswordHash")
-                        .IsRequired()
                         .HasColumnType("longtext");
 
                     b.Property<string>("Role")
@@ -87,10 +86,13 @@ namespace LeaveSphere.API.Migrations
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("BalanceId"));
 
-                    b.Property<int>("EmployeeId")
+                    b.Property<int?>("EmployeeId")
                         .HasColumnType("int");
 
                     b.Property<int>("RemainingLeaves")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("TeamLeaderId")
                         .HasColumnType("int");
 
                     b.Property<int>("TotalLeaves")
@@ -102,6 +104,9 @@ namespace LeaveSphere.API.Migrations
                     b.HasKey("BalanceId");
 
                     b.HasIndex("EmployeeId")
+                        .IsUnique();
+
+                    b.HasIndex("TeamLeaderId")
                         .IsUnique();
 
                     b.ToTable("LeaveBalances");
@@ -117,6 +122,13 @@ namespace LeaveSphere.API.Migrations
 
                     b.Property<DateTime>("AppliedDate")
                         .HasColumnType("datetime(6)");
+
+                    b.Property<string>("ApprovedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)");
+
+                    b.Property<int>("DepartmentId")
+                        .HasColumnType("int");
 
                     b.Property<int?>("EmployeeId")
                         .HasColumnType("int");
@@ -134,17 +146,66 @@ namespace LeaveSphere.API.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("varchar(500)");
 
+                    b.Property<string>("Role")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("varchar(20)");
+
                     b.Property<DateTime>("StartDate")
                         .HasColumnType("datetime(6)");
 
                     b.Property<string>("Status")
                         .HasColumnType("longtext");
 
+                    b.Property<int?>("TeamLeaderId")
+                        .HasColumnType("int");
+
                     b.HasKey("LeaveId");
 
                     b.HasIndex("EmployeeId");
 
+                    b.HasIndex("TeamLeaderId");
+
                     b.ToTable("LeaveRequests");
+                });
+
+            modelBuilder.Entity("LeaveSphere.API.Models.TeamLeader", b =>
+                {
+                    b.Property<int>("TeamLeaderId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("TeamLeaderId"));
+
+                    b.Property<DateTime>("DateOfJoining")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<int>("DepartmentId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)");
+
+                    b.Property<string>("PasswordHash")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("Role")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.HasKey("TeamLeaderId");
+
+                    b.HasIndex("DepartmentId")
+                        .IsUnique();
+
+                    b.ToTable("TeamLeaders");
                 });
 
             modelBuilder.Entity("LeaveSphere.API.Models.Employee", b =>
@@ -162,11 +223,15 @@ namespace LeaveSphere.API.Migrations
                 {
                     b.HasOne("LeaveSphere.API.Models.Employee", "Employee")
                         .WithOne("LeaveBalance")
-                        .HasForeignKey("LeaveSphere.API.Models.LeaveBalance", "EmployeeId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("LeaveSphere.API.Models.LeaveBalance", "EmployeeId");
+
+                    b.HasOne("LeaveSphere.API.Models.TeamLeader", "TeamLeader")
+                        .WithOne("LeaveBalance")
+                        .HasForeignKey("LeaveSphere.API.Models.LeaveBalance", "TeamLeaderId");
 
                     b.Navigation("Employee");
+
+                    b.Navigation("TeamLeader");
                 });
 
             modelBuilder.Entity("LeaveSphere.API.Models.LeaveRequest", b =>
@@ -175,15 +240,41 @@ namespace LeaveSphere.API.Migrations
                         .WithMany("LeaveRequests")
                         .HasForeignKey("EmployeeId");
 
+                    b.HasOne("LeaveSphere.API.Models.TeamLeader", "TeamLeader")
+                        .WithMany("LeaveRequests")
+                        .HasForeignKey("TeamLeaderId");
+
                     b.Navigation("Employee");
+
+                    b.Navigation("TeamLeader");
+                });
+
+            modelBuilder.Entity("LeaveSphere.API.Models.TeamLeader", b =>
+                {
+                    b.HasOne("LeaveSphere.API.Models.Department", "Department")
+                        .WithOne("TeamLeader")
+                        .HasForeignKey("LeaveSphere.API.Models.TeamLeader", "DepartmentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Department");
                 });
 
             modelBuilder.Entity("LeaveSphere.API.Models.Department", b =>
                 {
                     b.Navigation("Employees");
+
+                    b.Navigation("TeamLeader");
                 });
 
             modelBuilder.Entity("LeaveSphere.API.Models.Employee", b =>
+                {
+                    b.Navigation("LeaveBalance");
+
+                    b.Navigation("LeaveRequests");
+                });
+
+            modelBuilder.Entity("LeaveSphere.API.Models.TeamLeader", b =>
                 {
                     b.Navigation("LeaveBalance");
 

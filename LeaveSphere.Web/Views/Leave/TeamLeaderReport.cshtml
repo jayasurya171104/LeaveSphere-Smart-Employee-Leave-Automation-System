@@ -1,0 +1,94 @@
+@model List<LeaveSphere.Web.Models.ViewModels.LeaveViewModel>
+@{
+    ViewData["Title"] = "Team Leader Leave Report";
+    Layout = "_Layout";
+    ViewData["BodyClass"] = "admin-bg";
+}
+
+<div class="glass-item mb-4">
+    <h2 class="mb-3"><i class="fas fa-file-invoice-dollar me-2 text-warning"></i> Team Leader Leave Report</h2>
+    <form method="get" action="/Leave/TeamLeaderReport" class="row g-3 align-items-end">
+        <div class="col-md-3">
+            <label class="form-label small text-white-50">Department</label>
+            <select name="departmentId" class="form-control">
+                <option value="0">All Departments</option>
+                @if (ViewBag.Departments != null)
+                {
+                    foreach (var dept in (List<LeaveSphere.Web.Models.ViewModels.DepartmentViewModel>)ViewBag.Departments)
+                    {
+                        <option value="@dept.DepartmentId" selected="@(ViewBag.CurrentDept == dept.DepartmentId ? "selected" : null)">@dept.DepartmentName</option>
+                    }
+                }
+            </select>
+        </div>
+        <div class="col-md-2">
+            <label class="form-label small text-white-50">Start Date</label>
+            <input type="date" name="startDate" class="form-control" value="@ViewBag.StartDate" />
+        </div>
+        <div class="col-md-2">
+            <label class="form-label small text-white-50">End Date</label>
+            <input type="date" name="endDate" class="form-control" value="@ViewBag.EndDate" />
+        </div>
+        <div class="col-md-2">
+            <label class="form-label small text-white-50">Status</label>
+            <select name="status" class="form-control">
+                <option value="">All Status</option>
+                <option value="Pending" selected="@(ViewBag.CurrentStatus == "Pending" ? "selected" : null)">Pending</option>
+                <option value="Approved" selected="@(ViewBag.CurrentStatus == "Approved" ? "selected" : null)">Approved</option>
+                <option value="Rejected" selected="@(ViewBag.CurrentStatus == "Rejected" ? "selected" : null)">Rejected</option>
+            </select>
+        </div>
+        <div class="col-md-3 d-flex gap-2">
+            <button type="submit" class="btn btn-warning flex-grow-1 shadow-sm"><i class="fas fa-search me-1"></i> Filter</button>
+            <a href="/Leave/TeamLeaderReport" class="btn btn-outline-light shadow-sm"><i class="fas fa-undo"></i></a>
+        </div>
+    </form>
+</div>
+
+<div class="glass-table shadow">
+    <div class="table-responsive">
+        <table class="table mb-0">
+            <thead>
+                <tr>
+                    <th>Leader Name</th>
+                    <th>Department</th>
+                    <th>Leave From</th>
+                    <th>Leave To</th>
+                    <th>Type</th>
+                    <th>Reason</th>
+                    <th>Status</th>
+                    <th>Approved By</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model != null && Model.Any())
+                {
+                    foreach (var item in Model)
+                    {
+                        var badgeClass = item.Status == "Approved" ? "bg-success" :
+                                         item.Status == "Rejected" ? "bg-danger" : "bg-warning text-dark";
+                        <tr>
+                            <td class="fw-bold text-warning">@(item.TeamLeader?.Name ?? "N/A")</td>
+                            <td><span class="badge bg-light text-dark">@(item.TeamLeader?.Department?.DepartmentName ?? "N/A")</span></td>
+                            <td>@item.StartDate.ToString("dd MMM yyyy")</td>
+                            <td>@item.EndDate.ToString("dd MMM yyyy")</td>
+                            <td><span class="text-info fw-medium">@item.LeaveType</span></td>
+                            <td style="max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="@item.Reason">@item.Reason</td>
+                            <td><span class="badge @badgeClass">@item.Status</span></td>
+                            <td><span class="text-white-50">@(item.ApprovedBy ?? "Admin")</span></td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="8" class="text-center py-5 text-muted">
+                            <i class="fas fa-folder-open fa-3x mb-3 d-block opacity-25"></i>
+                            No Team Leader leave records found for the selected filters.
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

@@ -1,0 +1,59 @@
+@model List<LeaveSphere.Web.Models.ViewModels.LeaveViewModel>
+@{
+    ViewData["Title"] = "Department Leaves";
+    Layout = "_Layout";
+    ViewData["BodyClass"] = "admin-bg";
+}
+
+<div class="glass-table shadow mt-4">
+    <div class="p-4 border-bottom border-secondary d-flex justify-content-between align-items-center">
+        <div>
+            <h2 class="mb-1"><i class="fas fa-calendar-check me-2 text-warning"></i> Department Leaves</h2>
+            <p class="text-white-50 mb-0">Recent leave requests from your department employees</p>
+        </div>
+        <a href="/Leave/Approve" class="btn btn-outline-info">
+            <i class="fas fa-check-double me-2"></i> Action Required
+        </a>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-hover mb-0">
+            <thead>
+                <tr>
+                    <th>Employee Name</th>
+                    <th>Leave Type</th>
+                    <th>Leave From</th>
+                    <th>Leave To</th>
+                    <th>Reason</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model != null && Model.Any())
+                {
+                    foreach (var leave in Model)
+                    {
+                        var badgeClass = leave.Status == "Approved" ? "bg-success" :
+                                         leave.Status == "Rejected" ? "bg-danger" : "bg-warning text-dark";
+                        <tr>
+                            <td class="fw-bold">@(leave.Employee?.Name ?? "N/A")</td>
+                            <td><span class="badge bg-info">@leave.LeaveType</span></td>
+                            <td>@leave.StartDate.ToString("dd MMM yyyy")</td>
+                            <td>@leave.EndDate.ToString("dd MMM yyyy")</td>
+                            <td style="max-width: 250px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">@leave.Reason</td>
+                            <td><span class="badge @badgeClass">@leave.Status</span></td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="6" class="text-center py-5 text-muted">
+                            <i class="fas fa-calendar-times fa-3x mb-3 d-block opacity-25"></i>
+                            No recent leave records found in your department.
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

@@ -13,9 +13,11 @@ namespace LeaveSphere.API.Models
 
         [Required]
         [MaxLength(100)]
-        public string DepartmentName { get; set; }
+        public required string DepartmentName { get; set; }
 
         [System.Text.Json.Serialization.JsonIgnore]
         public ICollection<Employee>? Employees { get; set; }
+
+        public TeamLeader? TeamLeader { get; set; }
     }
 }

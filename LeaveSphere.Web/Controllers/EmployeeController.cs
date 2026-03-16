@@ -39,6 +39,24 @@ namespace LeaveSphere.Web.Controllers
         }
 
         [HttpGet]
+        [Route("DeptEmployees")]
+        public async Task<IActionResult> DeptEmployees()
+        {
+            var token = HttpContext.Session.GetString("JWToken");
+            if (token == null) return RedirectToAction("Login", "Account");
+
+            var response = await _api.GetAsync("employee", token);
+            if (string.IsNullOrEmpty(response) || !response.Trim().StartsWith("["))
+            {
+                ViewBag.Message = "No department employees found.";
+                return View(new List<EmployeeViewModel>());
+            }
+
+            var employees = JsonConvert.DeserializeObject<List<EmployeeViewModel>>(response);
+            return View(employees);
+        }
+
+        [HttpGet]
         [Route("Create")]
         public async Task<IActionResult> Create()
         {

@@ -38,8 +38,15 @@ namespace LeaveSphere.API.Services
 
             leave.Status = "Approved";
 
-            var balance = _context.LeaveBalances
-                .FirstOrDefault(lb => lb.EmployeeId == leave.EmployeeId);
+            LeaveBalance? balance = null;
+            if (leave.EmployeeId.HasValue) 
+            {
+               balance = _context.LeaveBalances.FirstOrDefault(lb => lb.EmployeeId == leave.EmployeeId.Value);
+            }
+            else if (leave.TeamLeaderId.HasValue)
+            {
+               balance = _context.LeaveBalances.FirstOrDefault(lb => lb.TeamLeaderId == leave.TeamLeaderId.Value);
+            }
 
             if (balance != null)
             {
@@ -66,9 +73,7 @@ namespace LeaveSphere.API.Services
         public async Task<bool> HasLeaveConflictAsync(int departmentId, DateTime startDate, DateTime endDate)
         {
             var overlappingLeavesCount = await _context.LeaveRequests
-                .Include(l => l.Employee)
-                .Where(l => l.Employee != null && 
-                            l.Employee.DepartmentId == departmentId && 
+                .Where(l => l.DepartmentId == departmentId && 
                             l.Status == "Approved" &&
                             l.StartDate <= endDate && 
                             l.EndDate >= startDate)
