@@ -61,6 +61,7 @@ This system improves organizational workflow, reduces manual work, and provides 
 ## 🎨 Frontend
 - HTML(Razor)
 - CSS
+- JavaScript
 
 ## 🗄 Database
 - MySQL 
@@ -69,6 +70,12 @@ This system improves organizational workflow, reduces manual work, and provides 
 ## 🔐 Authentication
 - Session-based Authentication
 - Role-Based Access Control
+
+##🧩 Design Patterns Used
+- MVC (Model–View–Controller) Pattern  
+- Repository Pattern  
+- Service Layer Pattern  
+- Dependency Injection
 
 # 🏗 Project Architecture
 
