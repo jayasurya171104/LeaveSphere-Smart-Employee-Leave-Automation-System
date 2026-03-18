@@ -71,7 +71,7 @@ This system improves organizational workflow, reduces manual work, and provides 
 - Session-based Authentication
 - Role-Based Access Control
 
-##🧩 Design Patterns Used
+🧩 Design Patterns Used
 - MVC (Model–View–Controller) Pattern  
 - Repository Pattern  
 - Service Layer Pattern  
